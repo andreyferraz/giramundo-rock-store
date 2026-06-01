@@ -1,4 +1,4 @@
-(-- Schema for Giramundo store)
+-- Schema for Giramundo store
 CREATE TABLE IF NOT EXISTS admin (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	username TEXT NOT NULL UNIQUE,
