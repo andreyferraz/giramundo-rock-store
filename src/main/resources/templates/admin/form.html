@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Formulário</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <main class="admin-form">
+        <h1 th:text="${admin.id} != null ? 'Editar' : 'Criar'">Criar</h1>
+        <form th:action="@{/admin/save}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <label>
+                Usuário
+                <input type="text" th:field="*{username}" required>
+            </label>
+            <label>
+                Senha
+                <input type="password" th:field="*{password}" required>
+            </label>
+            <div>
+                <button type="submit">Salvar</button>
+                <a th:href="@{/admin}">Cancelar</a>
+            </div>
+        </form>
+    </main>
+
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

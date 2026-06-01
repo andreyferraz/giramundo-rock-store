@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Usuários</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        .admin-table {width:100%;border-collapse:collapse}
+        .admin-table th, .admin-table td {padding:8px;border:1px solid #ddd}
+    </style>
+</head>
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <main class="admin">
+        <h1>Administradores</h1>
+        <a th:href="@{/admin/create}" class="btn">Criar novo</a>
+        <table class="admin-table">
+            <thead>
+                <tr><th>ID</th><th>Usuário</th><th>Ações</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="a : ${admins}">
+                    <td th:text="${a.id}"></td>
+                    <td th:text="${a.username}"></td>
+                    <td>
+                        <a th:href="@{'/admin/edit/' + ${a.id}}">Editar</a> |
+                        <a th:href="@{'/admin/change-password/' + ${a.id}}">Alterar senha</a> |
+                        <form th:action="@{'/admin/delete/' + ${a.id}}" method="post" style="display:inline">
+                            <button type="submit" onclick="return confirm('Remover administrador?')">Remover</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

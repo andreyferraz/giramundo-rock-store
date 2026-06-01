@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giramundo Store | Loja</title>
+    <meta name="description" content="Loja Giramundo">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <main>
+        <section class="hero" id="home">
+            <div class="hero-content">
+                <p class="eyebrow">Rock store • atitude • movimento</p>
+                <h1>Vista sua estrada. Carregue sua identidade.</h1>
+                <p class="hero-description">
+                    Um template de loja virtual com estética rock in roll, carrinho inteligente em JavaScript e pedido final montado automaticamente para WhatsApp.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" th:href="@{/loja}">Ver produtos</a>
+                    <a class="btn btn-secondary" th:href="@{/sobre}">Conhecer a marca</a>
+                </div>
+            </div>
+
+            <div class="hero-card" aria-label="Destaque da marca">
+                <img th:src="@{/img/logo-giramundo.png}" alt="Logo Giramundo em destaque">
+                <div>
+                    <span>GIRAMUNDO ORIGINAL</span>
+                    <strong>Loja pronta para backend Spring</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="section about-section" id="sobre">
+            <div class="section-header">
+                <p class="eyebrow">Sobre</p>
+                <h2>Uma marca com presença forte e visual de palco.</h2>
+            </div>
+            <div class="about-grid">
+                <article class="about-card">
+                    <h3>Identidade</h3>
+                    <p>Visual escuro, dourado e branco, inspirado na logo da águia, trazendo força, liberdade e atitude para a vitrine.</p>
+                </article>
+                <article class="about-card">
+                    <h3>Experiência</h3>
+                    <p>Fluxo simples: o cliente escolhe os produtos, ajusta quantidades, preenche o endereço e envia o pedido pelo WhatsApp.</p>
+                </article>
+                <article class="about-card">
+                    <h3>Pronto para evoluir</h3>
+                    <p>A estrutura já está preparada para você conectar o backend Java/Spring posteriormente, com APIs, banco de dados e cadastro real de produtos.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section shop-section" id="loja">
+            <div class="section-header split">
+                <div>
+                    <p class="eyebrow">Loja</p>
+                    <h2>Produtos em destaque</h2>
+                </div>
+                <p class="section-note">Produtos mockados no JavaScript. Depois você pode buscar via API Spring.</p>
+            </div>
+
+            <div class="product-grid" id="productGrid" aria-live="polite"></div>
+        </section>
+
+        <section class="section contact-section" id="contato">
+            <div class="contact-card">
+                <div>
+                    <p class="eyebrow">Contato</p>
+                    <h2>Fale com a Giramundo</h2>
+                    <p>Configure o número de WhatsApp no arquivo <code>assets/js/app.js</code> e personalize os dados da empresa.</p>
+                </div>
+                <div class="contact-list">
+                    <p><strong>WhatsApp:</strong> <span id="displayWhatsapp">configurar no JS</span></p>
+                    <p><strong>E-mail:</strong> contato@giramundo.com.br</p>
+                    <p><strong>Endereço:</strong> Sua cidade, seu estado</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
+        <div class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+            <div class="cart-header">
+                <div>
+                    <p class="eyebrow">Carrinho</p>
+                    <h2 id="cartTitle">Seu pedido</h2>
+                </div>
+                <button class="icon-btn" type="button" id="closeCartBtn" aria-label="Fechar carrinho">×</button>
+            </div>
+
+            <div class="cart-items" id="cartItems"></div>
+
+            <div class="address-box">
+                <h3>Endereço de entrega</h3>
+                <p>O botão de solicitação só será liberado após preencher todos os campos obrigatórios.</p>
+
+                <div class="form-grid">
+                    <label>
+                        Nome completo *
+                        <input type="text" id="customerName" placeholder="Ex.: João Silva" data-required="true">
+                    </label>
+                    <label>
+                        WhatsApp do cliente *
+                        <input type="tel" id="customerPhone" placeholder="Ex.: 85999999999" data-required="true">
+                    </label>
+                    <label class="full">
+                        Rua / Avenida *
+                        <input type="text" id="street" placeholder="Ex.: Av. Principal" data-required="true">
+                    </label>
+                    <label>
+                        Número *
+                        <input type="text" id="number" placeholder="Ex.: 123" data-required="true">
+                    </label>
+                    <label>
+                        Bairro *
+                        <input type="text" id="district" placeholder="Ex.: Centro" data-required="true">
+                    </label>
+                    <label>
+                        Cidade *
+                        <input type="text" id="city" placeholder="Ex.: Fortaleza" data-required="true">
+                    </label>
+                    <label>
+                        UF *
+                        <input type="text" id="state" maxlength="2" placeholder="CE" data-required="true">
+                    </label>
+                    <label class="full">
+                        Complemento
+                        <input type="text" id="complement" placeholder="Apartamento, bloco, referência...">
+                    </label>
+                </div>
+            </div>
+
+            <div class="cart-footer">
+                <div class="total-line">
+                    <span>Total</span>
+                    <strong id="cartTotal">R$ 0,00</strong>
+                </div>
+                <div class="cart-actions">
+                    <button class="btn btn-ghost" type="button" id="clearCartBtn">Limpar carrinho</button>
+                    <button class="btn btn-primary" type="button" id="sendOrderBtn" disabled>Solicitar pedido</button>
+                </div>
+                <small id="cartValidationMessage">Adicione produtos e preencha o endereço para liberar o pedido.</small>
+            </div>
+        </div>
+    </aside>
+
+    <div th:replace="fragments/footer :: footer"></div>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

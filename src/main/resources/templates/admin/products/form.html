@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produto</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <div th:replace="fragments/header :: header"></div>
+    <main>
+        <h1 th:text="${product.id} != null ? 'Editar produto' : 'Criar produto'">Criar produto</h1>
+        <form th:action="@{/admin/products/save}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <label>Nome<input type="text" th:field="*{name}" required></label>
+            <label>Descrição<textarea th:field="*{description}"></textarea></label>
+            <label>Preço<input type="number" step="0.01" th:field="*{price}" required></label>
+            <label>SKU<input type="text" th:field="*{sku}"></label>
+            <label>Imagem (URL)<input type="text" th:field="*{image}"></label>
+            <div>
+                <button type="submit">Salvar</button>
+                <a th:href="@{/admin/products}">Cancelar</a>
+            </div>
+        </form>
+    </main>
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
