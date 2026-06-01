@@ -35,13 +35,13 @@ public class ProductController {
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable Long id, Model model) {
+    public String edit(@PathVariable String id, Model model) {
         model.addAttribute("product", repo.findById(id));
         return "admin/products/form";
     }
 
     @PostMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable String id) {
         repo.deleteById(id);
         return "redirect:/admin/products";
     }

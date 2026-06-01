@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class ProductRepository {
@@ -20,7 +21,7 @@ public class ProductRepository {
         @Override
         public Product mapRow(ResultSet rs, int rowNum) throws SQLException {
             Product p = new Product();
-            p.setId(rs.getLong("id"));
+            p.setId(rs.getString("id"));
             p.setName(rs.getString("name"));
             p.setDescription(rs.getString("description"));
             p.setPrice(rs.getDouble("price"));
@@ -34,21 +35,23 @@ public class ProductRepository {
         return jdbc.query("SELECT id, name, description, price, sku, image FROM product ORDER BY id", mapper);
     }
 
-    public Product findById(Long id) {
+    public Product findById(String id) {
         return jdbc.queryForObject("SELECT id, name, description, price, sku, image FROM product WHERE id = ?", new Object[]{id}, mapper);
     }
 
     public int save(Product p) {
-        if (p.getId() == null) {
-            return jdbc.update("INSERT INTO product(name, description, price, sku, image) VALUES(?,?,?,?,?)",
-                    p.getName(), p.getDescription(), p.getPrice(), p.getSku(), p.getImage());
+        if (p.getId() == null || p.getId().isEmpty()) {
+            String id = UUID.randomUUID().toString();
+            p.setId(id);
+            return jdbc.update("INSERT INTO product(id, name, description, price, sku, image) VALUES(?,?,?,?,?,?)",
+                    p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getSku(), p.getImage());
         } else {
             return jdbc.update("UPDATE product SET name = ?, description = ?, price = ?, sku = ?, image = ? WHERE id = ?",
                     p.getName(), p.getDescription(), p.getPrice(), p.getSku(), p.getImage(), p.getId());
         }
     }
 
-    public int deleteById(Long id) {
+    public int deleteById(String id) {
         return jdbc.update("DELETE FROM product WHERE id = ?", id);
     }
 }

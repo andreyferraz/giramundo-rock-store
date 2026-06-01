@@ -1,23 +1,25 @@
 package br.com.giramundo.store.model;
 
+import java.util.UUID;
+
 public class Admin {
-    private Long id;
+    private UUID id;
     private String username;
     private String password;
 
     public Admin() {}
 
-    public Admin(Long id, String username, String password) {
+    public Admin(UUID id, String username, String password) {
         this.id = id;
         this.username = username;
         this.password = password;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

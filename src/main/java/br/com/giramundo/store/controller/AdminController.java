@@ -35,25 +35,25 @@ public class AdminController {
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable Long id, Model model) {
+    public String edit(@PathVariable String id, Model model) {
         model.addAttribute("admin", adminRepo.findById(id));
         return "admin/form";
     }
 
     @PostMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable String id) {
         adminRepo.deleteById(id);
         return "redirect:/admin";
     }
 
     @GetMapping("/change-password/{id}")
-    public String changePasswordForm(@PathVariable Long id, Model model) {
+    public String changePasswordForm(@PathVariable String id, Model model) {
         model.addAttribute("admin", adminRepo.findById(id));
         return "admin/change-password";
     }
 
     @PostMapping("/change-password")
-    public String changePassword(@RequestParam Long id, @RequestParam String password) {
+    public String changePassword(@RequestParam String id, @RequestParam String password) {
         Admin a = adminRepo.findById(id);
         a.setPassword(password);
         adminRepo.save(a);

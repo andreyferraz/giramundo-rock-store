@@ -33,13 +33,13 @@ public class FinancialController {
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable Long id, Model model) {
+    public String edit(@PathVariable String id, Model model) {
         model.addAttribute("entry", repo.findById(id));
         return "admin/financial/form";
     }
 
     @PostMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable String id) {
         repo.deleteById(id);
         return "redirect:/admin/financial";
     }
