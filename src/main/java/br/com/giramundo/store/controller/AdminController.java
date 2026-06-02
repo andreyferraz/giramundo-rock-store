@@ -1,63 +1,251 @@
 package br.com.giramundo.store.controller;
 
 import br.com.giramundo.store.model.Admin;
+import br.com.giramundo.store.model.FinancialEntry;
+import br.com.giramundo.store.model.Product;
 import br.com.giramundo.store.repository.AdminRepository;
+import br.com.giramundo.store.service.AdminService;
+import br.com.giramundo.store.service.FinancialService;
+import br.com.giramundo.store.service.ProductService;
+import java.security.Principal;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import java.util.UUID;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
 
-    private final AdminRepository adminRepo;
+    private static final String VIEW_PANEL = "admin/panel";
+    private static final String ATTR_ACTIVE_TAB = "activeTab";
+    private static final String ATTR_CURRENT_ADMIN = "currentAdmin";
+    private static final String ATTR_ADMIN = "admin";
+    private static final String ATTR_PRODUCTS = "products";
+    private static final String ATTR_PRODUCT = "product";
+    private static final String ATTR_ENTRIES = "entries";
+    private static final String ATTR_ENTRY = "entry";
+    private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
+    private static final String ATTR_ERROR_MESSAGE = "errorMessage";
+    private static final String DEFAULT_ADMIN_USERNAME = "admin";
+    private static final String TAB_SETTINGS = "settings";
+    private static final String TAB_PRODUCTS = "products";
+    private static final String TAB_FINANCIAL = "financial";
 
-    public AdminController(AdminRepository adminRepo) {
-        this.adminRepo = adminRepo;
+    private final AdminRepository adminRepository;
+    private final AdminService adminService;
+    private final ProductService productService;
+    private final FinancialService financialService;
+
+    public AdminController(AdminRepository adminRepository, AdminService adminService,
+            ProductService productService, FinancialService financialService) {
+        this.adminRepository = adminRepository;
+        this.adminService = adminService;
+        this.productService = productService;
+        this.financialService = financialService;
     }
 
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("admins", adminRepo.findAll());
-        return "admin/list";
+    public String root() {
+        return "redirect:/admin/settings";
     }
 
-    @GetMapping("/create")
-    public String createForm(Model model) {
-        model.addAttribute("admin", new Admin());
-        return "admin/form";
+    @GetMapping("/settings")
+    public String settings(Principal principal, Model model) {
+        Admin currentAdmin = currentAdmin(principal);
+        model.addAttribute(ATTR_ACTIVE_TAB, TAB_SETTINGS);
+        model.addAttribute(ATTR_CURRENT_ADMIN, currentAdmin.getUsername());
+        model.addAttribute(ATTR_ADMIN, currentAdmin);
+        model.addAttribute(ATTR_PRODUCTS, productService.findAll());
+        model.addAttribute(ATTR_PRODUCT, new Product());
+        model.addAttribute(ATTR_ENTRIES, financialService.findAll());
+        model.addAttribute(ATTR_ENTRY, new FinancialEntry());
+        addSharedMessages(model, null, null);
+        return VIEW_PANEL;
     }
 
-    @PostMapping("/save")
-    public String save(@ModelAttribute Admin admin) {
-        adminRepo.save(admin);
-        return "redirect:/admin";
+    @PostMapping("/settings/password")
+    public String updatePassword(Principal principal,
+            @RequestParam String newPassword,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Admin currentAdmin = currentAdmin(principal);
+            adminService.changePassword(currentAdmin.getId(), newPassword);
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Senha atualizada com sucesso.");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, ex.getMessage());
+        }
+
+        return "redirect:/admin/settings";
     }
 
-    @GetMapping("/edit/{id}")
-    public String edit(@PathVariable UUID id, Model model) {
-        model.addAttribute("admin", adminRepo.findById(id).orElse(new Admin()));
-        return "admin/form";
+    @GetMapping("/products")
+    public String products(Principal principal, Model model) {
+        return renderProductsPage(principal, model, new Product(), null, null);
     }
 
-    @PostMapping("/delete/{id}")
-    public String delete(@PathVariable UUID id) {
-        adminRepo.deleteById(id);
-        return "redirect:/admin";
+    @GetMapping("/products/new")
+    public String newProduct(Principal principal, Model model) {
+        return renderProductsPage(principal, model, new Product(), null, null);
     }
 
-    @GetMapping("/change-password/{id}")
-    public String changePasswordForm(@PathVariable UUID id, Model model) {
-        model.addAttribute("admin", adminRepo.findById(id).orElse(new Admin()));
-        return "admin/change-password";
+    @GetMapping("/products/edit/{id}")
+    public String editProduct(Principal principal, @PathVariable UUID id, Model model) {
+        Product product = productService.findById(id).orElseThrow(() -> new IllegalArgumentException("Product não encontrado."));
+        return renderProductsPage(principal, model, product, null, null);
     }
 
-    @PostMapping("/change-password")
-    public String changePassword(@RequestParam UUID id, @RequestParam String password) {
-        Admin a = adminRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Admin not found: " + id));
-        a.setPassword(password);
-        adminRepo.save(a);
-        return "redirect:/admin";
+    @PostMapping("/products/save")
+    public String saveProduct(Principal principal,
+            @ModelAttribute Product product,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+            RedirectAttributes redirectAttributes) {
+        try {
+            if (product.getId() == null) {
+                productService.create(product, imageFile);
+            } else {
+                productService.update(product.getId(), product, imageFile);
+            }
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Produto salvo com sucesso.");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, ex.getMessage());
+        }
+
+        return "redirect:/admin/products";
+    }
+
+    @PostMapping("/products/delete/{id}")
+    public String deleteProduct(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
+        try {
+            productService.delete(id);
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Produto removido com sucesso.");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, ex.getMessage());
+        }
+
+        return "redirect:/admin/products";
+    }
+
+    @GetMapping("/financial")
+    public String financial(Principal principal, Model model) {
+        return renderFinancialPage(principal, model, new FinancialEntry(), null, null);
+    }
+
+    @GetMapping("/financial/new")
+    public String newFinancial(Principal principal, Model model) {
+        return renderFinancialPage(principal, model, new FinancialEntry(), null, null);
+    }
+
+    @GetMapping("/financial/edit/{id}")
+    public String editFinancial(Principal principal, @PathVariable UUID id, Model model) {
+        FinancialEntry entry = financialService.findById(id).orElseThrow(() -> new IllegalArgumentException("FinancialEntry não encontrado."));
+        return renderFinancialPage(principal, model, entry, null, null);
+    }
+
+    @PostMapping("/financial/save")
+    public String saveFinancial(Principal principal,
+            @RequestParam(required = false) UUID id,
+            @RequestParam String type,
+            @RequestParam Double price,
+            @RequestParam String occurredAt,
+            @RequestParam(required = false) String description,
+            RedirectAttributes redirectAttributes) {
+        try {
+            FinancialEntry entry = new FinancialEntry();
+            entry.setId(id);
+            entry.setType(type);
+            entry.setPrice(price);
+            entry.setOccurredAt(parseDateTime(occurredAt));
+            entry.setDescription(description);
+
+            if (entry.getId() == null) {
+                financialService.create(entry);
+            } else {
+                financialService.update(entry.getId(), entry);
+            }
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Lançamento salvo com sucesso.");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, ex.getMessage());
+        }
+
+        return "redirect:/admin/financial";
+    }
+
+    @PostMapping("/financial/delete/{id}")
+    public String deleteFinancial(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
+        try {
+            financialService.delete(id);
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Lançamento removido com sucesso.");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, ex.getMessage());
+        }
+
+        return "redirect:/admin/financial";
+    }
+
+    private String renderProductsPage(Principal principal, Model model, Product product,
+            String successMessage, String errorMessage) {
+        Admin currentAdmin = currentAdmin(principal);
+        model.addAttribute(ATTR_ACTIVE_TAB, TAB_PRODUCTS);
+        model.addAttribute(ATTR_CURRENT_ADMIN, currentAdmin.getUsername());
+        model.addAttribute(ATTR_ADMIN, currentAdmin);
+        model.addAttribute(ATTR_PRODUCTS, productService.findAll());
+        model.addAttribute(ATTR_PRODUCT, product);
+        model.addAttribute(ATTR_ENTRIES, financialService.findAll());
+        model.addAttribute(ATTR_ENTRY, new FinancialEntry());
+        addSharedMessages(model, successMessage, errorMessage);
+        return VIEW_PANEL;
+    }
+
+    private String renderFinancialPage(Principal principal, Model model, FinancialEntry entry,
+            String successMessage, String errorMessage) {
+        Admin currentAdmin = currentAdmin(principal);
+        model.addAttribute(ATTR_ACTIVE_TAB, TAB_FINANCIAL);
+        model.addAttribute(ATTR_CURRENT_ADMIN, currentAdmin.getUsername());
+        model.addAttribute(ATTR_ADMIN, currentAdmin);
+        model.addAttribute(ATTR_ENTRIES, financialService.findAll());
+        model.addAttribute(ATTR_ENTRY, entry);
+        model.addAttribute(ATTR_PRODUCTS, productService.findAll());
+        model.addAttribute(ATTR_PRODUCT, new Product());
+        addSharedMessages(model, successMessage, errorMessage);
+        return VIEW_PANEL;
+    }
+
+    private void addSharedMessages(Model model, String successMessage, String errorMessage) {
+        if (successMessage != null) {
+            model.addAttribute(ATTR_SUCCESS_MESSAGE, successMessage);
+        }
+
+        if (errorMessage != null) {
+            model.addAttribute(ATTR_ERROR_MESSAGE, errorMessage);
+        }
+    }
+
+    private Admin currentAdmin(Principal principal) {
+        String username = principal != null ? principal.getName() : DEFAULT_ADMIN_USERNAME;
+        Optional<Admin> admin = adminRepository.findByUsername(username);
+        return admin.orElseGet(() -> {
+            Admin fallback = new Admin();
+            fallback.setUsername(username);
+            fallback.setPassword("");
+            fallback.setNew(false);
+            return fallback;
+        });
+    }
+
+    private OffsetDateTime parseDateTime(String occurredAt) {
+        LocalDateTime localDateTime = LocalDateTime.parse(occurredAt);
+        return localDateTime.atZone(ZoneId.systemDefault()).toOffsetDateTime();
     }
 }

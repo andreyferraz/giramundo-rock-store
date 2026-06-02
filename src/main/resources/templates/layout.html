@@ -13,6 +13,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" integrity="sha384-4cq2IMEVXKMvxLPJ+cTG5fA48aVp075u7q44ta6g72pANz2yCAyVap00bfDdedl2" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" integrity="sha384-PPIZEGYM1v8zp5Py7UjFb79S58UeqCL9pYVnVPURKEqvioPROaVAJKKLzvH2rDnI" crossorigin="anonymous">
 
 	<link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
@@ -26,15 +27,15 @@
         </a>
 
         <nav class="main-nav" aria-label="Menu principal">
-            <a href="/#home">Home</a>
+            <a href="/#home"><i class="fa-solid fa-house" aria-hidden="true"></i> <span>Home</span></a>
 
-            <a href="/#sobre">Sobre</a>
-            <a href="/#loja">Loja</a>
-            <a href="/#contato">Contato</a>
+            <a href="/#sobre"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span>Sobre</span></a>
+            <a href="/#loja"><i class="fa-solid fa-store" aria-hidden="true"></i> <span>Loja</span></a>
+            <a href="/#contato"><i class="fa-solid fa-envelope" aria-hidden="true"></i> <span>Contato</span></a>
         </nav>
 
         <button class="cart-toggle" type="button" id="openCartBtn" aria-label="Abrir carrinho">
-            <span>Carrinho</span>
+            <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
             <strong id="cartCounter">0</strong>
         </button>
     </header>
@@ -53,7 +54,10 @@
             </div>
 
             <div class="footer-meta">
-                <button class="btn btn-secondary" id="adminPanelBtn">Painel Admin</button>
+                <button class="btn btn-secondary" id="adminPanelBtn">
+                    <i class="fa-solid fa-user-gear" aria-hidden="true"></i>
+                    <span>Painel Admin</span>
+                </button>
             </div>
         </div>
     </footer>

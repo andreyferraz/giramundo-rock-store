@@ -1,15 +1,21 @@
 package br.com.giramundo.store.config;
 
+import br.com.giramundo.store.model.Admin;
+import br.com.giramundo.store.repository.AdminRepository;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.UUID;
 
 @Configuration
 public class SecurityConfig {
@@ -43,16 +49,32 @@ public class SecurityConfig {
     }
 
     @Bean
-    public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder,
+    public UserDetailsService userDetailsService(AdminRepository adminRepository) {
+        return username -> adminRepository.findByUsername(username)
+            .map(admin -> User.withUsername(admin.getUsername())
+                .password(admin.getPassword())
+                .roles("ADMIN")
+                .build())
+            .orElseThrow(() -> new UsernameNotFoundException("Admin not found: " + username));
+    }
+
+    @Bean
+    public CommandLineRunner defaultAdminSeeder(AdminRepository adminRepository,
+            PasswordEncoder passwordEncoder,
             @Value("${app.security.admin.username:admin}") String adminUsername,
             @Value("${app.security.admin.password:admin}") String adminPassword) {
+        return args -> {
+            if (adminRepository.findByUsername(adminUsername).isPresent()) {
+                return;
+            }
 
-        UserDetails admin = User.withUsername(adminUsername)
-            .password(passwordEncoder.encode(adminPassword))
-            .roles("ADMIN")
-            .build();
-
-        return new InMemoryUserDetailsManager(admin);
+            Admin admin = new Admin();
+            admin.setId(UUID.randomUUID());
+            admin.setUsername(adminUsername);
+            admin.setPassword(passwordEncoder.encode(adminPassword));
+            admin.setNew(true);
+            adminRepository.save(admin);
+        };
     }
 
     @Bean

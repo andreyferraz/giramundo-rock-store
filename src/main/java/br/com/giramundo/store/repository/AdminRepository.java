@@ -5,10 +5,13 @@ import br.com.giramundo.store.model.Admin;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface AdminRepository extends CrudRepository<Admin, UUID> {
+
+	Optional<Admin> findByUsername(String username);
 
 
 }

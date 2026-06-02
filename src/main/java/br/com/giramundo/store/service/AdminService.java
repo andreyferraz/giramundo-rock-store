@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import br.com.giramundo.store.model.Admin;
 import br.com.giramundo.store.repository.AdminRepository;
@@ -14,19 +15,24 @@ import br.com.giramundo.store.utils.ValidationUtils;
 @Transactional
 public class AdminService {
 
-    private final AdminRepository adminRepository;
+    private static final String PASSWORD_FIELD = "password";
 
-    public AdminService(AdminRepository adminRepository) {
+    private final AdminRepository adminRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder) {
         this.adminRepository = adminRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Admin create(Admin admin) {
         ValidationUtils.validarCampoStringObrigatorio(admin.getUsername(), "username");
-        ValidationUtils.validarCampoStringObrigatorio(admin.getPassword(), "password");
+        ValidationUtils.validarCampoStringObrigatorio(admin.getPassword(), PASSWORD_FIELD);
 
         if (admin.getId() == null) {
             admin.setId(UUID.randomUUID());
         }
+        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
         admin.setNew(true);
         return adminRepository.save(admin);
     }
@@ -37,10 +43,10 @@ public class AdminService {
                 .orElseThrow(() -> new IllegalArgumentException("Admin não encontrado."));
 
         ValidationUtils.validarCampoStringObrigatorio(admin.getUsername(), "username");
-        ValidationUtils.validarCampoStringObrigatorio(admin.getPassword(), "password");
+        ValidationUtils.validarCampoStringObrigatorio(admin.getPassword(), PASSWORD_FIELD);
 
         existing.setUsername(admin.getUsername());
-        existing.setPassword(admin.getPassword());
+        existing.setPassword(passwordEncoder.encode(admin.getPassword()));
         existing.setNew(false);
         return adminRepository.save(existing);
     }
@@ -61,12 +67,12 @@ public class AdminService {
 
     public Admin changePassword(UUID id, String newPassword) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
-        ValidationUtils.validarCampoStringObrigatorio(newPassword, "password");
+        ValidationUtils.validarCampoStringObrigatorio(newPassword, PASSWORD_FIELD);
 
         Admin existing = adminRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Admin não encontrado."));
 
-        existing.setPassword(newPassword);
+        existing.setPassword(passwordEncoder.encode(newPassword));
         existing.setNew(false);
         return adminRepository.save(existing);
     }
