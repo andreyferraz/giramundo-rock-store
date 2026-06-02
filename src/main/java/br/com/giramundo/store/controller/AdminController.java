@@ -5,6 +5,7 @@ import br.com.giramundo.store.repository.AdminRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/admin")
@@ -35,26 +36,26 @@ public class AdminController {
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable String id, Model model) {
-        model.addAttribute("admin", adminRepo.findById(id));
+    public String edit(@PathVariable UUID id, Model model) {
+        model.addAttribute("admin", adminRepo.findById(id).orElse(new Admin()));
         return "admin/form";
     }
 
     @PostMapping("/delete/{id}")
-    public String delete(@PathVariable String id) {
+    public String delete(@PathVariable UUID id) {
         adminRepo.deleteById(id);
         return "redirect:/admin";
     }
 
     @GetMapping("/change-password/{id}")
-    public String changePasswordForm(@PathVariable String id, Model model) {
-        model.addAttribute("admin", adminRepo.findById(id));
+    public String changePasswordForm(@PathVariable UUID id, Model model) {
+        model.addAttribute("admin", adminRepo.findById(id).orElse(new Admin()));
         return "admin/change-password";
     }
 
     @PostMapping("/change-password")
-    public String changePassword(@RequestParam String id, @RequestParam String password) {
-        Admin a = adminRepo.findById(id);
+    public String changePassword(@RequestParam UUID id, @RequestParam String password) {
+        Admin a = adminRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Admin not found: " + id));
         a.setPassword(password);
         adminRepo.save(a);
         return "redirect:/admin";
