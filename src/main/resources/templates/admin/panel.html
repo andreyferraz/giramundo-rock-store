@@ -26,15 +26,15 @@
       </section>
 
       <nav class="admin-tabs" aria-label="Abas do painel administrativo">
-        <a th:href="@{/admin/settings}" th:classappend="${activeTab == 'settings'} ? ' is-active' : ''">
+        <a th:href="@{/admin/settings#settings-section}" th:classappend="${activeTab == 'settings'} ? ' is-active' : ''">
           <i class="fa-solid fa-gear" aria-hidden="true"></i>
           <span>Configurações</span>
         </a>
-        <a th:href="@{/admin/products}" th:classappend="${activeTab == 'products'} ? ' is-active' : ''">
+        <a th:href="@{/admin/products#products-section}" th:classappend="${activeTab == 'products'} ? ' is-active' : ''">
           <i class="fa-solid fa-box-open" aria-hidden="true"></i>
           <span>Produtos</span>
         </a>
-        <a th:href="@{/admin/financial}" th:classappend="${activeTab == 'financial'} ? ' is-active' : ''">
+        <a th:href="@{/admin/financial#financial-section}" th:classappend="${activeTab == 'financial'} ? ' is-active' : ''">
           <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
           <span>Financeiro</span>
         </a>
@@ -43,7 +43,7 @@
       <div class="panel-message panel-message-success" th:if="${successMessage}" th:text="${successMessage}"></div>
       <div class="panel-message panel-message-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
-      <section class="admin-section" th:if="${activeTab == 'settings'}">
+      <section id="settings-section" class="admin-section" th:if="${activeTab == 'settings'}">
         <div class="section-header split">
           <div>
             <p class="eyebrow">Configurações</p>
@@ -71,7 +71,7 @@
         </div>
       </section>
 
-      <section class="admin-section" th:if="${activeTab == 'products'}">
+      <section id="products-section" class="admin-section" th:if="${activeTab == 'products'}">
         <div class="section-header split">
           <div>
             <p class="eyebrow">Produtos</p>
@@ -168,7 +168,7 @@
         </div>
       </section>
 
-      <section class="admin-section" th:if="${activeTab == 'financial'}">
+      <section id="financial-section" class="admin-section" th:if="${activeTab == 'financial'}">
         <div class="section-header split">
           <div>
             <p class="eyebrow">Financeiro</p>

@@ -773,6 +773,7 @@ input:focus {
     display: grid;
     gap: 22px;
     padding-block: 64px;
+    padding-inline: clamp(18px, 4vw, 64px);
 }
 
 .admin-hero {
@@ -881,6 +882,7 @@ input:focus {
 .admin-section {
     display: grid;
     gap: 18px;
+    scroll-margin-top: 112px;
 }
 
 .admin-grid {
@@ -1099,6 +1101,7 @@ input:focus {
 
     .admin-page {
         padding-block: 40px;
+        padding-inline: clamp(14px, 3vw, 28px);
     }
 
     .admin-tabs {
