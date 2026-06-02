@@ -1,26 +1,47 @@
 package br.com.giramundo.store.model;
 
-public class FinancialEntry {
-    private String id;
-    private String type; // IN or OUT
-    private Double amount;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Table("financial_entry")
+public class FinancialEntry implements Persistable<UUID> {
+
+    @Id
+    @Column("id")
+    private UUID id;
+
+    @Column("type")
+    private String type;
+
+    @Column("price")
+    private Double price;
+
+    @Column("occurred_at")
+    private OffsetDateTime occurredAt;
+
+    @Column("description")
     private String description;
-    private String occurredAt; // ISO datetime or date
 
-    public FinancialEntry() {}
+    @Transient 
+    private boolean isNew = false;
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    @Override
+    public UUID getId() { return id; }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    @Override
+    public boolean isNew() { return isNew; }
 
-    public Double getAmount() { return amount; }
-    public void setAmount(Double amount) { this.amount = amount; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
-    public String getOccurredAt() { return occurredAt; }
-    public void setOccurredAt(String occurredAt) { this.occurredAt = occurredAt; }
 }

@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS product (
 CREATE TABLE IF NOT EXISTS financial_entry (
 	id TEXT PRIMARY KEY,
 	type TEXT NOT NULL, -- IN or OUT
-	amount REAL NOT NULL,
+	price REAL NOT NULL,
 	description TEXT,
 	occurred_at TEXT NOT NULL
 );
