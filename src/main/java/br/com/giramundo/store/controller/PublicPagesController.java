@@ -11,6 +11,11 @@ public class PublicPagesController {
         return "index";
     }
 
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
     @GetMapping("/sobre")
     public String about() {
         return "about";

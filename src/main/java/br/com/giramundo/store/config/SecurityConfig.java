@@ -2,7 +2,6 @@ package br.com.giramundo.store.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.User;
@@ -22,6 +21,7 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/",
                     "/index",
+                    "/login",
                     "/css/**",
                     "/js/**",
                     "/img/**",
@@ -32,7 +32,11 @@ public class SecurityConfig {
                 .requestMatchers("/admin/**").authenticated()
                 .anyRequest().permitAll()
             )
-            .formLogin(Customizer.withDefaults())
+            .formLogin(form -> form
+                .loginPage("/login")
+                .defaultSuccessUrl("/admin", true)
+                .permitAll()
+            )
             .logout(logout -> logout.logoutSuccessUrl("/"));
 
         return http.build();
