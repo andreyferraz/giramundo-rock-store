@@ -69,7 +69,7 @@ public class SecurityConfig {
             }
 
             Admin admin = new Admin();
-            admin.setId(UUID.randomUUID());
+            admin.setId(UUID.randomUUID().toString());
             admin.setUsername(adminUsername);
             admin.setPassword(passwordEncoder.encode(adminPassword));
             admin.setNew(true);

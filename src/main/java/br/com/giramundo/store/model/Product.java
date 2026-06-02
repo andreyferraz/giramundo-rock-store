@@ -1,7 +1,5 @@
 package br.com.giramundo.store.model;
 
-import java.util.UUID;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
@@ -16,11 +14,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("product")
-public class Product implements Persistable<UUID> {
+public class Product implements Persistable<String> {
     
     @Id
     @Column("id")
-    private UUID id;
+    private String id;
 
     @Column("name")
     private String name;
@@ -41,7 +39,7 @@ public class Product implements Persistable<UUID> {
     private boolean isNew = false;
 
     @Override
-    public UUID getId() { return id; }
+    public String getId() { return id; }
 
     @Override
     public boolean isNew() { return isNew; }

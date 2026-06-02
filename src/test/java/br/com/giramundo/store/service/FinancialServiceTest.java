@@ -22,7 +22,7 @@ import br.com.giramundo.store.model.FinancialEntry;
 import br.com.giramundo.store.repository.FinancialRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class FinancialServiceTest {
+class FinancialServiceTest {
 
     @Mock
     private FinancialRepository financialRepository;
@@ -35,7 +35,7 @@ public class FinancialServiceTest {
     @BeforeEach
     void setUp() {
         sample = new FinancialEntry();
-        sample.setId(UUID.randomUUID());
+        sample.setId(UUID.randomUUID().toString());
         sample.setType("IN");
         sample.setPrice(123.45);
         sample.setOccurredAt(OffsetDateTime.now());
@@ -72,8 +72,8 @@ public class FinancialServiceTest {
 
     @Test
     void update_shouldModifyAndReturn_whenExists() {
-        UUID id = sample.getId();
-        when(financialRepository.findById(id)).thenReturn(Optional.of(sample));
+        UUID id = UUID.fromString(sample.getId());
+        when(financialRepository.findById(id.toString())).thenReturn(Optional.of(sample));
         when(financialRepository.save(any(FinancialEntry.class))).thenAnswer(i -> i.getArgument(0));
 
         FinancialEntry updated = new FinancialEntry();
@@ -86,14 +86,14 @@ public class FinancialServiceTest {
 
         assertEquals("OUT", result.getType());
         assertEquals(50.0, result.getPrice());
-        verify(financialRepository).findById(id);
+        verify(financialRepository).findById(id.toString());
         verify(financialRepository).save(any(FinancialEntry.class));
     }
 
     @Test
     void update_shouldThrow_whenNotFound() {
         UUID id = UUID.randomUUID();
-        when(financialRepository.findById(id)).thenReturn(Optional.empty());
+        when(financialRepository.findById(id.toString())).thenReturn(Optional.empty());
 
         FinancialEntry updated = new FinancialEntry();
         updated.setType("OUT");
@@ -105,8 +105,8 @@ public class FinancialServiceTest {
 
     @Test
     void findById_shouldReturnOptional_whenExists() {
-        UUID id = sample.getId();
-        when(financialRepository.findById(id)).thenReturn(Optional.of(sample));
+        UUID id = UUID.fromString(sample.getId());
+        when(financialRepository.findById(id.toString())).thenReturn(Optional.of(sample));
 
         Optional<FinancialEntry> found = financialService.findById(id);
         assertEquals(true, found.isPresent());
@@ -120,9 +120,9 @@ public class FinancialServiceTest {
 
     @Test
     void delete_shouldCallRepositoryDelete() {
-        UUID id = sample.getId();
+        UUID id = UUID.fromString(sample.getId());
         financialService.delete(id);
-        verify(financialRepository).deleteById(id);
+        verify(financialRepository).deleteById(id.toString());
     }
 
 }

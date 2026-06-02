@@ -30,7 +30,7 @@ public class AdminService {
         ValidationUtils.validarCampoStringObrigatorio(admin.getPassword(), PASSWORD_FIELD);
 
         if (admin.getId() == null) {
-            admin.setId(UUID.randomUUID());
+            admin.setId(UUID.randomUUID().toString());
         }
         admin.setPassword(passwordEncoder.encode(admin.getPassword()));
         admin.setNew(true);
@@ -39,7 +39,7 @@ public class AdminService {
 
     public Admin update(UUID id, Admin admin) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
-        Admin existing = adminRepository.findById(id)
+        Admin existing = adminRepository.findById(id.toString())
                 .orElseThrow(() -> new IllegalArgumentException("Admin não encontrado."));
 
         ValidationUtils.validarCampoStringObrigatorio(admin.getUsername(), "username");
@@ -53,7 +53,7 @@ public class AdminService {
 
     public Optional<Admin> findById(UUID id) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
-        return adminRepository.findById(id);
+        return adminRepository.findById(id.toString());
     }
 
     public Iterable<Admin> findAll() {
@@ -62,14 +62,14 @@ public class AdminService {
 
     public void delete(UUID id) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
-        adminRepository.deleteById(id);
+        adminRepository.deleteById(id.toString());
     }
 
     public Admin changePassword(UUID id, String newPassword) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
         ValidationUtils.validarCampoStringObrigatorio(newPassword, PASSWORD_FIELD);
 
-        Admin existing = adminRepository.findById(id)
+        Admin existing = adminRepository.findById(id.toString())
                 .orElseThrow(() -> new IllegalArgumentException("Admin não encontrado."));
 
         existing.setPassword(passwordEncoder.encode(newPassword));

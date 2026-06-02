@@ -34,7 +34,7 @@ public class ProductService {
         }
 
         if (product.getId() == null) {
-            product.setId(UUID.randomUUID());
+            product.setId(UUID.randomUUID().toString());
         }
         product.setNew(true);
         return productRepository.save(product);
@@ -42,7 +42,7 @@ public class ProductService {
 
     public Product update(UUID id, Product product, MultipartFile imageFile) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
-        Product existing = productRepository.findById(id)
+        Product existing = productRepository.findById(id.toString())
                 .orElseThrow(() -> new IllegalArgumentException("Product não encontrado."));
 
         ValidationUtils.validarCampoStringObrigatorio(product.getName(), "name");
@@ -69,7 +69,7 @@ public class ProductService {
 
     public Optional<Product> findById(UUID id) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
-        return productRepository.findById(id);
+        return productRepository.findById(id.toString());
     }
 
     public Iterable<Product> findAll() {
@@ -78,14 +78,14 @@ public class ProductService {
 
     public void delete(UUID id) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
-        Product existing = productRepository.findById(id)
+        Product existing = productRepository.findById(id.toString())
                 .orElseThrow(() -> new IllegalArgumentException("Product não encontrado."));
 
         if (existing.getImage() != null && !existing.getImage().isEmpty()) {
             fileUploadService.removerImagem(existing.getImage());
         }
 
-        productRepository.deleteById(id);
+        productRepository.deleteById(id.toString());
     }
 
 }

@@ -1,7 +1,6 @@
 package br.com.giramundo.store.model;
 
 import java.time.OffsetDateTime;
-import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
@@ -17,11 +16,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("financial_entry")
-public class FinancialEntry implements Persistable<UUID> {
+public class FinancialEntry implements Persistable<String> {
 
     @Id
     @Column("id")
-    private UUID id;
+    private String id;
 
     @Column("type")
     private String type;
@@ -39,7 +38,7 @@ public class FinancialEntry implements Persistable<UUID> {
     private boolean isNew = false;
 
     @Override
-    public UUID getId() { return id; }
+    public String getId() { return id; }
 
     @Override
     public boolean isNew() { return isNew; }

@@ -26,7 +26,7 @@ public class FinancialService {
         ValidationUtils.validarCampoObrigatorio(entry.getOccurredAt(), "occurred_at");
 
         if (entry.getId() == null) {
-            entry.setId(UUID.randomUUID());
+            entry.setId(UUID.randomUUID().toString());
         }
         entry.setNew(true);
         return financialRepository.save(entry);
@@ -34,7 +34,7 @@ public class FinancialService {
 
     public FinancialEntry update(UUID id, FinancialEntry entry) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
-        FinancialEntry existing = financialRepository.findById(id)
+        FinancialEntry existing = financialRepository.findById(id.toString())
                 .orElseThrow(() -> new IllegalArgumentException("FinancialEntry não encontrado."));
 
         ValidationUtils.validarCampoStringObrigatorio(entry.getType(), "type");
@@ -52,7 +52,7 @@ public class FinancialService {
 
     public Optional<FinancialEntry> findById(UUID id) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
-        return financialRepository.findById(id);
+        return financialRepository.findById(id.toString());
     }
 
     public Iterable<FinancialEntry> findAll() {
@@ -61,7 +61,7 @@ public class FinancialService {
 
     public void delete(UUID id) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
-        financialRepository.deleteById(id);
+        financialRepository.deleteById(id.toString());
     }
 
 }

@@ -81,7 +81,7 @@ public class AdminController {
             RedirectAttributes redirectAttributes) {
         try {
             Admin currentAdmin = currentAdmin(principal);
-            adminService.changePassword(currentAdmin.getId(), newPassword);
+            adminService.changePassword(UUID.fromString(currentAdmin.getId()), newPassword);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Senha atualizada com sucesso.");
         } catch (RuntimeException ex) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, ex.getMessage());
@@ -115,7 +115,7 @@ public class AdminController {
             if (product.getId() == null) {
                 productService.create(product, imageFile);
             } else {
-                productService.update(product.getId(), product, imageFile);
+                productService.update(UUID.fromString(product.getId()), product, imageFile);
             }
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Produto salvo com sucesso.");
         } catch (RuntimeException ex) {
@@ -163,7 +163,7 @@ public class AdminController {
             RedirectAttributes redirectAttributes) {
         try {
             FinancialEntry entry = new FinancialEntry();
-            entry.setId(id);
+            entry.setId(id == null ? null : id.toString());
             entry.setType(type);
             entry.setPrice(price);
             entry.setOccurredAt(parseDateTime(occurredAt));
@@ -172,7 +172,7 @@ public class AdminController {
             if (entry.getId() == null) {
                 financialService.create(entry);
             } else {
-                financialService.update(entry.getId(), entry);
+                financialService.update(UUID.fromString(entry.getId()), entry);
             }
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Lançamento salvo com sucesso.");
         } catch (RuntimeException ex) {
@@ -237,6 +237,7 @@ public class AdminController {
         Optional<Admin> admin = adminRepository.findByUsername(username);
         return admin.orElseGet(() -> {
             Admin fallback = new Admin();
+            fallback.setId(UUID.randomUUID().toString());
             fallback.setUsername(username);
             fallback.setPassword("");
             fallback.setNew(false);
