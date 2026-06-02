@@ -1,30 +1,48 @@
 package br.com.giramundo.store.model;
 
-public class Product {
-    private String id;
+import java.util.UUID;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Table("product")
+public class Product implements Persistable<UUID> {
+    
+    @Id
+    @Column("id")
+    private UUID id;
+
+    @Column("name")
     private String name;
+
+    @Column("description")
     private String description;
+
+    @Column("price")
     private Double price;
-    private String sku;
+
+    @Column("quantity")
+    private Integer quantity;
+
+    @Column("image")
     private String image;
 
-    public Product() {}
+    @Transient 
+    private boolean isNew = false;
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    @Override
+    public UUID getId() { return id; }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
-    public Double getPrice() { return price; }
-    public void setPrice(Double price) { this.price = price; }
-
-    public String getSku() { return sku; }
-    public void setSku(String sku) { this.sku = sku; }
-
-    public String getImage() { return image; }
-    public void setImage(String image) { this.image = image; }
+    @Override
+    public boolean isNew() { return isNew; }
 }

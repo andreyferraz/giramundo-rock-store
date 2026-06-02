@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS product (
 	name TEXT NOT NULL,
 	description TEXT,
 	price REAL NOT NULL,
-	sku TEXT,
+	quantity INTEGER NOT NULL,
 	image TEXT
 );
 
