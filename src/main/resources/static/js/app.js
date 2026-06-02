@@ -257,6 +257,10 @@ function sendOrderToWhatsapp() {
 }
 
 function openCart() {
+    if (typeof cartDrawer.showModal === "function" && !cartDrawer.open) {
+        cartDrawer.showModal();
+    }
+
     cartDrawer.classList.add("open");
     cartDrawer.setAttribute("aria-hidden", "false");
 }
@@ -264,6 +268,10 @@ function openCart() {
 function closeCart() {
     cartDrawer.classList.remove("open");
     cartDrawer.setAttribute("aria-hidden", "true");
+
+    if (cartDrawer.open) {
+        cartDrawer.close();
+    }
 }
 
 function setupEvents() {
@@ -286,11 +294,22 @@ function setupEvents() {
 }
 
 function init() {
-    displayWhatsapp.textContent = CONFIG.whatsappNumber;
-    renderProducts();
-    renderCart();
-    setupEvents();
     setupFooter();
+
+    if (!cartDrawer || !cartItems || !cartCounter || !cartTotal || !sendOrderBtn || !clearCartBtn || !openCartBtn || !closeCartBtn || !validationMessage) {
+        return;
+    }
+
+    setupEvents();
+    renderCart();
+
+    if (displayWhatsapp) {
+        displayWhatsapp.textContent = CONFIG.whatsappNumber;
+    }
+
+    if (productGrid) {
+        renderProducts();
+    }
 }
 
 init();
