@@ -1,10 +1,6 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
-</head>
-<body>
-   
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR" th:replace="layout :: layout('Gira Mundo', ~{::content})">
+  <div th:fragment="content">
 
     <main>
         <section class="hero" id="home">
@@ -78,6 +74,5 @@
         </section>
     </main>
 
-    
-</body>
+  </div>
 </html>

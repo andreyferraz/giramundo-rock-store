@@ -8,7 +8,7 @@ public class PublicPagesController {
 
     @GetMapping({"/", "/home", "/loja"})
     public String store() {
-        return "store";
+        return "index";
     }
 
     @GetMapping("/sobre")

@@ -290,6 +290,21 @@ function init() {
     renderProducts();
     renderCart();
     setupEvents();
+    setupFooter();
 }
 
 init();
+
+function setupFooter() {
+    const yearEl = document.getElementById('footerYear');
+    if (yearEl) {
+        yearEl.textContent = new Date().getFullYear();
+    }
+
+    const adminBtn = document.getElementById('adminPanelBtn');
+    if (adminBtn) {
+        adminBtn.addEventListener('click', () => {
+            window.location.href = '/admin';
+        });
+    }
+}
