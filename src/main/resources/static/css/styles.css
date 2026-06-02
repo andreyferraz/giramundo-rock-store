@@ -1022,6 +1022,40 @@ input:focus {
     display: block;
 }
 
+.product-cell {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.product-thumb-wrap {
+    width: 56px;
+    height: 56px;
+    flex: 0 0 56px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.product-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.product-thumb-fallback {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
 .admin-table td small {
     margin-top: 6px;
     color: var(--muted);

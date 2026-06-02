@@ -2,6 +2,7 @@ package br.com.giramundo.store.service;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,16 +34,17 @@ public class ProductService {
             product.setImage(imagemSalva);
         }
 
-        if (product.getId() == null) {
+        String productId = product.getId();
+        if (productId == null || productId.isBlank()) {
             product.setId(UUID.randomUUID().toString());
         }
         product.setNew(true);
         return productRepository.save(product);
     }
 
-    public Product update(UUID id, Product product, MultipartFile imageFile) {
+    public Product update(String id, Product product, MultipartFile imageFile) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
-        Product existing = productRepository.findById(id.toString())
+        Product existing = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product não encontrado."));
 
         ValidationUtils.validarCampoStringObrigatorio(product.getName(), "name");
@@ -72,20 +74,35 @@ public class ProductService {
         return productRepository.findById(id.toString());
     }
 
-    public Iterable<Product> findAll() {
-        return productRepository.findAll();
+    public Optional<Product> findById(String id) {
+        ValidationUtils.validarCampoObrigatorio(id, "id");
+        return productRepository.findById(id);
     }
 
-    public void delete(UUID id) {
+    public Iterable<Product> findAll() {
+        Iterable<Product> products = productRepository.findAll();
+        StreamSupport.stream(products.spliterator(), false)
+                .filter(product -> product.getId() != null && product.getId().isBlank())
+                .findFirst()
+                .ifPresent(product -> {
+                    String generatedId = UUID.randomUUID().toString();
+                    if (productRepository.assignIdToLegacyBlankProduct(generatedId) > 0) {
+                        product.setId(generatedId);
+                    }
+                });
+        return products;
+    }
+
+    public void delete(String id) {
         ValidationUtils.validarCampoObrigatorio(id, "id");
-        Product existing = productRepository.findById(id.toString())
+        Product existing = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product não encontrado."));
 
         if (existing.getImage() != null && !existing.getImage().isEmpty()) {
             fileUploadService.removerImagem(existing.getImage());
         }
 
-        productRepository.deleteById(id.toString());
+        productRepository.deleteById(id);
     }
 
 }

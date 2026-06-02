@@ -1,30 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="layout :: layout('Painel Admin | Giramundo', ~{::content})">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('Painel Admin | Giramundo', ~{::content})}">
   <head>
     <title>Painel Admin | Giramundo</title>
   </head>
   <div th:fragment="content">
     <div class="admin-page">
-      <section class="admin-hero">
-        <div>
-          <p class="eyebrow">Painel administrativo</p>
-          <h1>Gerencie configurações, produtos e financeiro em um só lugar.</h1>
-          <p class="admin-hero-copy">
-            Você está autenticado como <strong th:text="${currentAdmin}">admin</strong>. Use as abas abaixo para navegar entre as áreas de gestão.
-          </p>
-        </div>
-
-        <div class="admin-hero-card">
-          <div>
-            <span class="admin-hero-label">Acesso ativo</span>
-            <strong>Login via banco de dados</strong>
-          </div>
-          <p>
-            A senha atualizada em Configurações passa a valer no próximo login imediatamente.
-          </p>
-        </div>
-      </section>
-
       <nav class="admin-tabs" aria-label="Abas do painel administrativo">
         <a th:href="@{/admin/settings#settings-section}" th:classappend="${activeTab == 'settings'} ? ' is-active' : ''">
           <i class="fa-solid fa-gear" aria-hidden="true"></i>
@@ -84,7 +64,7 @@
         </div>
 
         <div class="admin-grid">
-          <article class="admin-card">
+          <article id="product-form" class="admin-card">
             <h3 th:text="${product.id != null} ? 'Editar produto' : 'Novo produto'">Novo produto</h3>
 
             <form class="admin-form" th:action="@{/admin/products/save}" method="post" enctype="multipart/form-data">
@@ -147,17 +127,34 @@
                 <tbody>
                   <tr th:each="item : ${products}">
                     <td>
-                      <strong th:text="${item.name}">Produto</strong>
-                      <small th:text="${item.description}">Descrição</small>
+                      <div class="product-cell">
+                        <div class="product-thumb-wrap">
+                          <img class="product-thumb"
+                               th:if="${item.image != null and !#strings.isEmpty(item.image)}"
+                               th:src="@{'/uploads/' + ${item.image}}"
+                               th:alt="|Miniatura de ${item.name}|">
+                          <span class="product-thumb-fallback"
+                                th:unless="${item.image != null and !#strings.isEmpty(item.image)}"
+                                aria-hidden="true">IMG</span>
+                        </div>
+                        <div>
+                          <strong th:text="${item.name}">Produto</strong>
+                          <small th:text="${item.description}">Descrição</small>
+                        </div>
+                      </div>
                     </td>
                     <td th:text="${item.quantity}">0</td>
                     <td th:text="|R$ ${item.price}|">R$ 0,00</td>
                     <td>
                       <div class="table-actions">
-                        <a class="btn btn-secondary btn-small" th:href="@{'/admin/products/edit/' + ${item.id}}">Editar</a>
-                        <form th:action="@{'/admin/products/delete/' + ${item.id}}" method="post">
+                        <a class="btn btn-secondary btn-small"
+                           th:if="${item.id != null and !#strings.isEmpty(item.id)}"
+                          th:href="@{'/admin/products/edit/' + ${item.id} + '#product-form'}">Editar</a>
+                        <form th:if="${item.id != null and !#strings.isEmpty(item.id)}"
+                              th:action="@{'/admin/products/delete/' + ${item.id}}" method="post">
                           <button class="btn btn-ghost btn-small" type="submit" onclick="return confirm('Remover este produto?')">Excluir</button>
                         </form>
+                        <span class="input-hint" th:if="${item.id == null or #strings.isEmpty(item.id)}">Produto legado sem ID</span>
                       </div>
                     </td>
                   </tr>

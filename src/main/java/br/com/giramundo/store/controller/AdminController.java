@@ -14,6 +14,7 @@ import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -42,6 +43,7 @@ public class AdminController {
     private static final String TAB_SETTINGS = "settings";
     private static final String TAB_PRODUCTS = "products";
     private static final String TAB_FINANCIAL = "financial";
+    private static final String REDIRECT_PRODUCTS = "redirect:/admin/products";
 
     private final AdminRepository adminRepository;
     private final AdminService adminService;
@@ -100,10 +102,23 @@ public class AdminController {
         return renderProductsPage(principal, model, new Product(), null, null);
     }
 
+    @GetMapping("/products/edit")
+    public String editProductWithoutId(RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, "Produto inválido para edição.");
+        return REDIRECT_PRODUCTS;
+    }
+
     @GetMapping("/products/edit/{id}")
-    public String editProduct(Principal principal, @PathVariable UUID id, Model model) {
-        Product product = productService.findById(id).orElseThrow(() -> new IllegalArgumentException("Product não encontrado."));
-        return renderProductsPage(principal, model, product, null, null);
+    public String editProduct(Principal principal, @PathVariable String id, Model model,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Product product = productService.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Product não encontrado."));
+            return renderProductsPage(principal, model, product, null, null);
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, "Produto inválido para edição.");
+            return REDIRECT_PRODUCTS;
+        }
     }
 
     @PostMapping("/products/save")
@@ -112,21 +127,21 @@ public class AdminController {
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
             RedirectAttributes redirectAttributes) {
         try {
-            if (product.getId() == null) {
+            if (!StringUtils.hasText(product.getId())) {
                 productService.create(product, imageFile);
             } else {
-                productService.update(UUID.fromString(product.getId()), product, imageFile);
+                productService.update(product.getId(), product, imageFile);
             }
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Produto salvo com sucesso.");
         } catch (RuntimeException ex) {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, ex.getMessage());
         }
 
-        return "redirect:/admin/products";
+        return REDIRECT_PRODUCTS;
     }
 
     @PostMapping("/products/delete/{id}")
-    public String deleteProduct(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
+    public String deleteProduct(@PathVariable String id, RedirectAttributes redirectAttributes) {
         try {
             productService.delete(id);
             redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Produto removido com sucesso.");
@@ -134,7 +149,7 @@ public class AdminController {
             redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, ex.getMessage());
         }
 
-        return "redirect:/admin/products";
+        return REDIRECT_PRODUCTS;
     }
 
     @GetMapping("/financial")

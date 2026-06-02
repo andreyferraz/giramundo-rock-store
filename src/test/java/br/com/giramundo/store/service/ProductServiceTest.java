@@ -124,7 +124,7 @@ class ProductServiceTest {
         update.setPrice(20.0);
         update.setQuantity(2);
 
-        Product result = productService.update(UUID.fromString(id), update, newFile);
+        Product result = productService.update(id, update, newFile);
 
         assertEquals("new.webp", result.getImage());
         verify(fileUploadService).removerImagem("old.webp");
@@ -154,7 +154,7 @@ class ProductServiceTest {
         update.setPrice(20.0);
         update.setQuantity(2);
 
-        Product result = productService.update(UUID.fromString(id), update, newFile);
+        Product result = productService.update(id, update, newFile);
 
         assertEquals("new.webp", result.getImage());
         verify(fileUploadService).salvarImagem(newFile);
@@ -183,7 +183,7 @@ class ProductServiceTest {
         update.setPrice(20.0);
         update.setQuantity(2);
 
-        productService.update(UUID.fromString(id), update, empty);
+        productService.update(id, update, empty);
 
         // upload should not be called, old image remains
         verify(fileUploadService, org.mockito.Mockito.never()).salvarImagem(any(MultipartFile.class));
@@ -193,32 +193,32 @@ class ProductServiceTest {
 
     @Test
     void delete_shouldRemoveImageAndDeleteById() {
-        UUID id = UUID.fromString(sample.getId());
+        String id = sample.getId();
         Product existing = new Product();
-        existing.setId(id.toString());
+        existing.setId(id);
         existing.setImage("to-remove.webp");
 
-        when(productRepository.findById(id.toString())).thenReturn(Optional.of(existing));
+        when(productRepository.findById(id)).thenReturn(Optional.of(existing));
 
         productService.delete(id);
 
         verify(fileUploadService).removerImagem("to-remove.webp");
-        verify(productRepository).deleteById(id.toString());
+        verify(productRepository).deleteById(id);
     }
 
     @Test
     void delete_shouldDeleteEvenWhenNoImage() {
-        UUID id = UUID.fromString(sample.getId());
+        String id = sample.getId();
         Product existing = new Product();
-        existing.setId(id.toString());
+        existing.setId(id);
         existing.setImage(null);
 
-        when(productRepository.findById(id.toString())).thenReturn(Optional.of(existing));
+        when(productRepository.findById(id)).thenReturn(Optional.of(existing));
 
         productService.delete(id);
 
         verify(fileUploadService, org.mockito.Mockito.never()).removerImagem(any(String.class));
-        verify(productRepository).deleteById(id.toString());
+        verify(productRepository).deleteById(id);
     }
 
 }
