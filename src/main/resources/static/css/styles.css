@@ -396,6 +396,10 @@ input {
     letter-spacing: 0.03em;
 }
 
+.shop-pagination {
+    margin-top: 22px;
+}
+
 .about-card,
 .product-card,
 .event-card,

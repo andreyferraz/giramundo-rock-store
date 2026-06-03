@@ -12,6 +12,7 @@ const state = {
 };
 
 const productGrid = document.getElementById("productGrid");
+const productPagination = document.getElementById("productPagination");
 const cartDrawer = document.getElementById("cartDrawer");
 const cartItems = document.getElementById("cartItems");
 const cartCounter = document.getElementById("cartCounter");
@@ -35,8 +36,13 @@ const shareFacebook = document.getElementById("shareFacebook");
 const shareX = document.getElementById("shareX");
 
 const EVENTS_PER_PAGE = 6;
+const PRODUCTS_PER_PAGE = 12;
 
 const eventsState = {
+    currentPage: 1
+};
+
+const productsState = {
     currentPage: 1
 };
 
@@ -51,14 +57,6 @@ const addressFields = [
 ];
 
 function formatMoney(value) {
-    return value.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-    });
-}
-
-function saveCart() {
-    localStorage.setItem("giramundo_cart", JSON.stringify(state.cart));
 }
 
 function normalizeText(value) {
@@ -92,10 +90,20 @@ function renderProducts() {
 
     if (filteredProducts.length === 0) {
         productGrid.innerHTML = `<div class="empty-cart product-empty">Nenhum produto encontrado para a pesquisa atual.</div>`;
+        renderProductsPagination(0, 0);
         return;
     }
 
-    productGrid.innerHTML = filteredProducts.map(product => {
+    const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
+    if (productsState.currentPage > totalPages) {
+        productsState.currentPage = totalPages;
+    }
+
+    const startIndex = (productsState.currentPage - 1) * PRODUCTS_PER_PAGE;
+    const endIndex = startIndex + PRODUCTS_PER_PAGE;
+    const pageProducts = filteredProducts.slice(startIndex, endIndex);
+
+    productGrid.innerHTML = pageProducts.map(product => {
         const imageUrl = getProductImageUrl(product);
         const price = Number(product.price || 0);
         const quantity = product.quantity ?? 0;
@@ -348,6 +356,31 @@ function renderCart() {
     validateOrder();
 }
 
+function renderProductsPagination(totalPages, totalItems) {
+    if (!productPagination) return;
+
+    if (totalItems === 0 || totalPages <= 1) {
+        productPagination.innerHTML = "";
+        productPagination.hidden = true;
+        return;
+    }
+
+    productPagination.hidden = false;
+
+    const previousDisabled = productsState.currentPage === 1 ? "disabled" : "";
+    const nextDisabled = productsState.currentPage === totalPages ? "disabled" : "";
+
+    productPagination.innerHTML = `
+        <button type="button" class="btn btn-secondary btn-small" data-product-pagination-action="prev" ${previousDisabled}>
+            Anterior
+        </button>
+        <span class="events-pagination-info">Página ${productsState.currentPage} de ${totalPages}</span>
+        <button type="button" class="btn btn-secondary btn-small" data-product-pagination-action="next" ${nextDisabled}>
+            Próxima
+        </button>
+    `;
+}
+
 function getFieldValue(id) {
     return document.getElementById(id).value.trim();
 }
@@ -455,7 +488,39 @@ function setupEvents() {
     if (productSearch) {
         productSearch.addEventListener("input", event => {
             state.searchTerm = event.target.value;
+            productsState.currentPage = 1;
             renderProducts();
+        });
+    }
+
+    if (productPagination) {
+        productPagination.addEventListener("click", event => {
+            const button = event.target.closest("button[data-product-pagination-action]");
+            if (!button || button.disabled) return;
+
+            const query = normalizeText(state.searchTerm);
+            const filteredProducts = state.products.filter(product => {
+                if (!query) return true;
+
+                const searchable = [product.name, product.description, product.price]
+                    .map(normalizeText)
+                    .join(" ");
+
+                return searchable.includes(query);
+            });
+
+            const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
+
+            if (button.dataset.productPaginationAction === "prev") {
+                productsState.currentPage = Math.max(1, productsState.currentPage - 1);
+            }
+
+            if (button.dataset.productPaginationAction === "next") {
+                productsState.currentPage = Math.min(totalPages, productsState.currentPage + 1);
+            }
+
+            renderProducts();
+            productGrid.scrollIntoView({ behavior: "smooth", block: "start" });
         });
     }
 
@@ -521,6 +586,7 @@ async function loadProducts() {
     }
 
     renderProducts();
+    updateActiveNavLink();
 }
 
 function init() {
@@ -556,10 +622,18 @@ function setupFooter() {
 }
 
 function getCurrentNavTarget() {
-    const pathname = window.location.pathname;
+    const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
 
-    if (pathname === "/loja" || pathname === "/sobre" || pathname === "/eventos") {
-        return pathname;
+    if (pathname === "/loja" || pathname.startsWith("/loja/")) {
+        return "/loja";
+    }
+
+    if (pathname === "/sobre" || pathname.startsWith("/sobre/")) {
+        return "/sobre";
+    }
+
+    if (pathname === "/eventos" || pathname.startsWith("/eventos/")) {
+        return "/eventos";
     }
 
     const hash = window.location.hash || "#home";
@@ -568,9 +642,11 @@ function getCurrentNavTarget() {
 
 function updateActiveNavLink() {
     const currentTarget = getCurrentNavTarget();
+    const links = document.querySelectorAll(".main-nav a");
 
-    mainNavLinks.forEach(link => {
-        const isActive = link.getAttribute("href") === currentTarget;
+    links.forEach(link => {
+        const linkTarget = link.getAttribute("href") || "";
+        const isActive = linkTarget === currentTarget;
         link.classList.toggle("is-active", isActive);
 
         if (isActive) {
