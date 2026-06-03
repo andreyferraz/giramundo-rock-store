@@ -14,6 +14,10 @@
           <i class="fa-solid fa-box-open" aria-hidden="true"></i>
           <span>Produtos</span>
         </a>
+        <a th:href="@{/admin/events#events-section}" th:classappend="${activeTab == 'events'} ? ' is-active' : ''">
+          <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
+          <span>Eventos</span>
+        </a>
         <a th:href="@{/admin/financial#financial-section}" th:classappend="${activeTab == 'financial'} ? ' is-active' : ''">
           <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
           <span>Financeiro</span>
@@ -155,6 +159,111 @@
                           <button class="btn btn-ghost btn-small" type="submit" onclick="return confirm('Remover este produto?')">Excluir</button>
                         </form>
                         <span class="input-hint" th:if="${item.id == null or #strings.isEmpty(item.id)}">Produto legado sem ID</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="events-section" class="admin-section" th:if="${activeTab == 'events'}">
+        <div class="section-header split">
+          <div>
+            <p class="eyebrow">Eventos</p>
+            <h2>Publicar e organizar posts do blog</h2>
+          </div>
+          <a class="btn btn-secondary" th:href="@{/admin/events/new}">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            <span>Novo evento</span>
+          </a>
+        </div>
+
+        <div class="admin-grid">
+          <article class="admin-card">
+            <h3 th:text="${event.id != null} ? 'Editar evento' : 'Novo evento'">Novo evento</h3>
+
+            <form class="admin-form" th:action="@{/admin/events/save}" method="post" enctype="multipart/form-data">
+              <input type="hidden" name="id" th:value="${event.id}">
+
+              <label>
+                Título
+                <input type="text" name="title" th:value="${event.title}" placeholder="Título do evento" required>
+              </label>
+
+              <label>
+                Texto
+                <textarea name="description" rows="6" placeholder="Texto do evento" th:text="${event.description}" required></textarea>
+              </label>
+
+              <label>
+                Flyer
+                <input type="file" name="imageFile" accept="image/*">
+              </label>
+
+              <p class="input-hint" th:if="${event.image != null and !#strings.isEmpty(event.image)}">
+                Imagem atual: <strong th:text="${event.image}">arquivo.webp</strong>
+              </p>
+
+              <label>
+                Data de publicação
+                <input type="text" th:value="${event.publishedAt != null ? event.publishedAt : 'Será definida automaticamente'}" readonly>
+              </label>
+
+              <div class="admin-actions">
+                <button class="btn btn-primary" type="submit">Salvar evento</button>
+                <a class="btn btn-secondary" th:href="@{/admin/events/new}">Limpar formulário</a>
+              </div>
+            </form>
+          </article>
+
+          <article class="admin-card admin-card-list">
+            <div class="admin-card-header">
+              <h3>Lista de eventos</h3>
+              <span>Posts cadastrados</span>
+            </div>
+
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Evento</th>
+                    <th>Publicado</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="item : ${events}">
+                    <td>
+                      <div class="product-cell">
+                        <div class="product-thumb-wrap">
+                          <img class="product-thumb"
+                               th:if="${item.image != null and !#strings.isEmpty(item.image)}"
+                               th:src="@{'/uploads/' + ${item.image}}"
+                               th:alt="|Miniatura de ${item.title}|">
+                          <span class="product-thumb-fallback"
+                                th:unless="${item.image != null and !#strings.isEmpty(item.image)}"
+                                aria-hidden="true">IMG</span>
+                        </div>
+                        <div>
+                          <strong th:text="${item.title}">Evento</strong>
+                          <small th:text="${item.description}">Descrição</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td th:text="${item.publishedAt != null ? item.publishedAt : '-'}">-</td>
+                    <td>
+                      <div class="table-actions">
+                        <a class="btn btn-secondary btn-small"
+                           th:if="${item.id != null and !#strings.isEmpty(item.id)}"
+                           th:href="@{'/admin/events/edit/' + ${item.id} + '#events-section'}">Editar</a>
+                        <form th:if="${item.id != null and !#strings.isEmpty(item.id)}"
+                              th:action="@{'/admin/events/delete/' + ${item.id}}" method="post">
+                          <button class="btn btn-ghost btn-small" type="submit" onclick="return confirm('Remover este evento?')">Excluir</button>
+                        </form>
+                        <span class="input-hint" th:if="${item.id == null or #strings.isEmpty(item.id)}">Evento legado sem ID</span>
                       </div>
                     </td>
                   </tr>

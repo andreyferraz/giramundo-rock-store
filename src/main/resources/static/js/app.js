@@ -24,6 +24,9 @@ const validationMessage = document.getElementById("cartValidationMessage");
 const displayWhatsapp = document.getElementById("displayWhatsapp");
 const mainNavLinks = document.querySelectorAll(".main-nav a");
 const productSearch = document.getElementById("productSearch");
+const eventsSearch = document.getElementById("eventsSearch");
+const eventsGrid = document.getElementById("eventsGrid");
+const eventsEmpty = document.getElementById("eventsEmpty");
 
 const addressFields = [
     "customerName",
@@ -106,6 +109,26 @@ function renderProducts() {
         </article>
     `;
     }).join("");
+}
+
+function renderEventsFilter() {
+    if (!eventsGrid || !eventsSearch) return;
+
+    const query = normalizeText(eventsSearch.value);
+    const cards = eventsGrid.querySelectorAll(".event-card");
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+        const searchable = normalizeText(card.dataset.search || card.textContent || "");
+        const isVisible = !query || searchable.includes(query);
+
+        card.classList.toggle("is-hidden", !isVisible);
+        if (isVisible) visibleCount += 1;
+    });
+
+    if (eventsEmpty) {
+        eventsEmpty.hidden = visibleCount !== 0;
+    }
 }
 
 function addToCart(productId) {
@@ -298,6 +321,10 @@ function setupEvents() {
         });
     }
 
+    if (eventsSearch) {
+        eventsSearch.addEventListener("input", renderEventsFilter);
+    }
+
     if (productGrid) {
         productGrid.addEventListener("click", event => {
             const button = event.target.closest("button[data-product-id]");
@@ -347,6 +374,7 @@ function init() {
     }
 
     loadProducts();
+    renderEventsFilter();
 
     window.addEventListener("hashchange", updateActiveNavLink);
     window.addEventListener("popstate", updateActiveNavLink);
@@ -371,7 +399,7 @@ function setupFooter() {
 function getCurrentNavTarget() {
     const pathname = window.location.pathname;
 
-    if (pathname === "/loja" || pathname === "/sobre") {
+    if (pathname === "/loja" || pathname === "/sobre" || pathname === "/eventos") {
         return pathname;
     }
 

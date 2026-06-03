@@ -22,3 +22,11 @@ CREATE TABLE IF NOT EXISTS financial_entry (
 	occurred_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS event (
+	id TEXT PRIMARY KEY,
+	title TEXT NOT NULL,
+	description TEXT NOT NULL,
+	image TEXT,
+	published_at TEXT NOT NULL
+);
+

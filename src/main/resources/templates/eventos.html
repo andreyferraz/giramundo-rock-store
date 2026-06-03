@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR" th:replace="~{layout :: layout('Eventos | Giramundo', ~{::content})}">
+  <head>
+    <title>Eventos | Giramundo</title>
+  </head>
+  <div th:fragment="content">
+    <main>
+      <section class="hero events-hero" id="events-hero">
+        <div class="hero-content">
+          <p class="eyebrow">Eventos</p>
+          <h1>Agenda viva, flyers marcantes e notas de palco.</h1>
+          <p class="hero-description">
+            Esta área funciona como um blog da marca para divulgar eventos, registrar a arte do flyer, publicar um texto de apoio e destacar a data em que cada postagem foi publicada.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#eventFeed">Ver publicações</a>
+            <a class="btn btn-secondary" href="/loja">Ir para a loja</a>
+          </div>
+        </div>
+
+        <div class="hero-card events-hero-card" aria-label="Destaque da aba Eventos">
+          <img th:src="@{/img/logo-giramundo.png}" alt="Logo Giramundo em destaque">
+          <div>
+            <span>BLOG DE EVENTOS</span>
+            <strong>Flyers, datas e textos de divulgação</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="section events-section" id="eventFeed">
+        <div class="section-header split">
+          <div>
+            <p class="eyebrow">Publicações</p>
+            <h2>Últimos eventos publicados</h2>
+          </div>
+          <div class="events-tools">
+            <label class="search-field events-search">
+              <span class="search-field-label">Pesquisar notícias</span>
+              <input type="search" id="eventsSearch" placeholder="Busque por título, texto ou data">
+            </label>
+            <p class="section-note">Use a busca para encontrar publicações rapidamente.</p>
+          </div>
+        </div>
+
+        <div class="events-grid" id="eventsGrid">
+          <article class="event-card" th:each="item : ${events}"
+                   th:attr="data-search=${#strings.toLowerCase((item.title ?: '') + ' ' + (item.description ?: '') + ' ' + (item.publishedAt ?: ''))}">
+            <div class="event-media">
+              <img th:if="${item.image != null and !#strings.isEmpty(item.image)}" th:src="@{'/uploads/' + ${item.image}}" th:alt="|Flyer de ${item.title}|">
+              <img th:unless="${item.image != null and !#strings.isEmpty(item.image)}" th:src="@{/img/logo-giramundo.png}" th:alt="|Flyer de ${item.title}|">
+            </div>
+            <div class="event-body">
+              <div class="event-meta">
+                <time th:if="${item.publishedAt != null}" th:datetime="${item.publishedAt}" th:text="|Publicado em ${item.publishedAt}|">Publicado em</time>
+                <time th:unless="${item.publishedAt != null}">Data indisponível</time>
+                <span class="event-tag">Evento</span>
+              </div>
+              <h3 th:text="${item.title}">Título do evento</h3>
+              <p th:text="${item.description}">Descrição do evento.</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="events-empty" id="eventsEmpty" hidden>
+          Nenhuma notícia encontrada para a pesquisa atual.
+        </div>
+      </section>
+    </main>
+  </div>
+</html>

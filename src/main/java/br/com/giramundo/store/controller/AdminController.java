@@ -1,10 +1,12 @@
 package br.com.giramundo.store.controller;
 
 import br.com.giramundo.store.model.Admin;
+import br.com.giramundo.store.model.Event;
 import br.com.giramundo.store.model.FinancialEntry;
 import br.com.giramundo.store.model.Product;
 import br.com.giramundo.store.repository.AdminRepository;
 import br.com.giramundo.store.service.AdminService;
+import br.com.giramundo.store.service.EventService;
 import br.com.giramundo.store.service.FinancialService;
 import br.com.giramundo.store.service.ProductService;
 import java.security.Principal;
@@ -35,6 +37,8 @@ public class AdminController {
     private static final String ATTR_ADMIN = "admin";
     private static final String ATTR_PRODUCTS = "products";
     private static final String ATTR_PRODUCT = "product";
+    private static final String ATTR_EVENTS = "events";
+    private static final String ATTR_EVENT = "event";
     private static final String ATTR_ENTRIES = "entries";
     private static final String ATTR_ENTRY = "entry";
     private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
@@ -42,19 +46,23 @@ public class AdminController {
     private static final String DEFAULT_ADMIN_USERNAME = "admin";
     private static final String TAB_SETTINGS = "settings";
     private static final String TAB_PRODUCTS = "products";
+    private static final String TAB_EVENTS = "events";
     private static final String TAB_FINANCIAL = "financial";
     private static final String REDIRECT_PRODUCTS = "redirect:/admin/products";
+    private static final String REDIRECT_EVENTS = "redirect:/admin/events";
 
     private final AdminRepository adminRepository;
     private final AdminService adminService;
     private final ProductService productService;
+    private final EventService eventService;
     private final FinancialService financialService;
 
     public AdminController(AdminRepository adminRepository, AdminService adminService,
-            ProductService productService, FinancialService financialService) {
+            ProductService productService, EventService eventService, FinancialService financialService) {
         this.adminRepository = adminRepository;
         this.adminService = adminService;
         this.productService = productService;
+        this.eventService = eventService;
         this.financialService = financialService;
     }
 
@@ -71,6 +79,8 @@ public class AdminController {
         model.addAttribute(ATTR_ADMIN, currentAdmin);
         model.addAttribute(ATTR_PRODUCTS, productService.findAll());
         model.addAttribute(ATTR_PRODUCT, new Product());
+        model.addAttribute(ATTR_EVENTS, eventService.findAll());
+        model.addAttribute(ATTR_EVENT, new Event());
         model.addAttribute(ATTR_ENTRIES, financialService.findAll());
         model.addAttribute(ATTR_ENTRY, new FinancialEntry());
         addSharedMessages(model, null, null);
@@ -152,6 +162,60 @@ public class AdminController {
         return REDIRECT_PRODUCTS;
     }
 
+    @GetMapping("/events")
+    public String events(Principal principal, Model model) {
+        return renderEventsPage(principal, model, new Event(), null, null);
+    }
+
+    @GetMapping("/events/new")
+    public String newEvent(Principal principal, Model model) {
+        return renderEventsPage(principal, model, new Event(), null, null);
+    }
+
+    @GetMapping("/events/edit/{id}")
+    public String editEvent(Principal principal, @PathVariable String id, Model model,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Event event = eventService.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Event não encontrado."));
+            return renderEventsPage(principal, model, event, null, null);
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, "Evento inválido para edição.");
+            return REDIRECT_EVENTS;
+        }
+    }
+
+    @PostMapping("/events/save")
+    public String saveEvent(Principal principal,
+            @ModelAttribute Event event,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+            RedirectAttributes redirectAttributes) {
+        try {
+            if (!StringUtils.hasText(event.getId())) {
+                eventService.create(event, imageFile);
+            } else {
+                eventService.update(event.getId(), event, imageFile);
+            }
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Evento salvo com sucesso.");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, ex.getMessage());
+        }
+
+        return REDIRECT_EVENTS;
+    }
+
+    @PostMapping("/events/delete/{id}")
+    public String deleteEvent(@PathVariable String id, RedirectAttributes redirectAttributes) {
+        try {
+            eventService.delete(id);
+            redirectAttributes.addFlashAttribute(ATTR_SUCCESS_MESSAGE, "Evento removido com sucesso.");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute(ATTR_ERROR_MESSAGE, ex.getMessage());
+        }
+
+        return REDIRECT_EVENTS;
+    }
+
     @GetMapping("/financial")
     public String financial(Principal principal, Model model) {
         return renderFinancialPage(principal, model, new FinancialEntry(), null, null);
@@ -217,6 +281,24 @@ public class AdminController {
         model.addAttribute(ATTR_ADMIN, currentAdmin);
         model.addAttribute(ATTR_PRODUCTS, productService.findAll());
         model.addAttribute(ATTR_PRODUCT, product);
+        model.addAttribute(ATTR_EVENTS, eventService.findAll());
+        model.addAttribute(ATTR_EVENT, new Event());
+        model.addAttribute(ATTR_ENTRIES, financialService.findAll());
+        model.addAttribute(ATTR_ENTRY, new FinancialEntry());
+        addSharedMessages(model, successMessage, errorMessage);
+        return VIEW_PANEL;
+    }
+
+    private String renderEventsPage(Principal principal, Model model, Event event,
+            String successMessage, String errorMessage) {
+        Admin currentAdmin = currentAdmin(principal);
+        model.addAttribute(ATTR_ACTIVE_TAB, TAB_EVENTS);
+        model.addAttribute(ATTR_CURRENT_ADMIN, currentAdmin.getUsername());
+        model.addAttribute(ATTR_ADMIN, currentAdmin);
+        model.addAttribute(ATTR_EVENTS, eventService.findAll());
+        model.addAttribute(ATTR_EVENT, event);
+        model.addAttribute(ATTR_PRODUCTS, productService.findAll());
+        model.addAttribute(ATTR_PRODUCT, new Product());
         model.addAttribute(ATTR_ENTRIES, financialService.findAll());
         model.addAttribute(ATTR_ENTRY, new FinancialEntry());
         addSharedMessages(model, successMessage, errorMessage);
