@@ -209,7 +209,7 @@
 
               <label>
                 Data de publicação
-                <input type="text" th:value="${event.publishedAt != null ? event.publishedAt : 'Será definida automaticamente'}" readonly>
+                <input type="text" th:value="${event.publishedAt != null ? #temporals.format(T(java.time.OffsetDateTime).parse(event.publishedAt), 'dd/MM/yyyy') : 'Será definida automaticamente'}" readonly>
               </label>
 
               <div class="admin-actions">
@@ -253,7 +253,7 @@
                         </div>
                       </div>
                     </td>
-                    <td th:text="${item.publishedAt != null ? item.publishedAt : '-'}">-</td>
+                    <td th:text="${item.publishedAt != null ? #temporals.format(T(java.time.OffsetDateTime).parse(item.publishedAt), 'dd/MM/yyyy') : '-'}">-</td>
                     <td>
                       <div class="table-actions">
                         <a class="btn btn-secondary btn-small"

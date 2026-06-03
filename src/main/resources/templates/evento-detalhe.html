@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR" th:replace="~{layout :: layout(${event.title} + ' | Eventos | Giramundo', ~{::content})}">
+  <head>
+    <title th:text="${event.title} + ' | Eventos | Giramundo'">Evento | Giramundo</title>
+  </head>
+  <div th:fragment="content">
+    <main>
+      <section class="hero event-detail-hero">
+        <div class="hero-content">
+          <p class="eyebrow">Evento</p>
+          <h1 th:text="${event.title}">Título do evento</h1>
+          <p class="hero-description" th:text="${event.description}">Texto do evento.</p>
+          <div class="hero-actions event-share-actions">
+            <button class="btn btn-primary" type="button" id="shareEventBtn">Compartilhar</button>
+            <a class="btn btn-secondary" th:href="@{/eventos}">Voltar aos eventos</a>
+          </div>
+        </div>
+
+        <div class="hero-card event-detail-card">
+          <img th:if="${event.image != null and !#strings.isEmpty(event.image)}" th:src="@{'/uploads/' + ${event.image}}" th:alt="|Flyer de ${event.title}|">
+          <img th:unless="${event.image != null and !#strings.isEmpty(event.image)}" th:src="@{/img/logo-giramundo.png}" th:alt="|Flyer de ${event.title}|">
+          <div>
+            <span th:text="${event.publishedAt != null ? #temporals.format(T(java.time.OffsetDateTime).parse(event.publishedAt), 'dd/MM/yyyy') : 'PUBLICADO'}">PUBLICADO</span>
+            <strong>Compartilhe esta publicação nas redes</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="section event-detail-section">
+        <div class="section-header split">
+          <div>
+            <p class="eyebrow">Detalhes</p>
+            <h2>Link único da publicação</h2>
+          </div>
+          <p class="section-note">Use a URL desta página para compartilhar nos stories, grupos ou mensagens.</p>
+        </div>
+
+        <article class="event-detail-content">
+          <div class="event-detail-meta">
+            <time th:if="${event.publishedAt != null}" th:datetime="${event.publishedAt}" th:text="|Publicado em ${#temporals.format(T(java.time.OffsetDateTime).parse(event.publishedAt), 'dd/MM/yyyy')}|">Publicado em</time>
+            <time th:unless="${event.publishedAt != null}">Data indisponível</time>
+            <button class="btn btn-ghost btn-small" type="button" id="copyEventLinkBtn">Copiar link</button>
+          </div>
+
+          <div class="event-detail-share-links">
+            <a class="btn btn-secondary btn-small" id="shareWhatsApp" target="_blank" rel="noopener">WhatsApp</a>
+            <a class="btn btn-secondary btn-small" id="shareFacebook" target="_blank" rel="noopener">Facebook</a>
+            <a class="btn btn-secondary btn-small" id="shareX" target="_blank" rel="noopener">X</a>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script th:inline="javascript">
+      window.__eventShareData = {
+        title: /*[[${event.title}]]*/ '',
+        description: /*[[${event.description}]]*/ '',
+        url: window.location.href
+      };
+    </script>
+  </div>
+</html>

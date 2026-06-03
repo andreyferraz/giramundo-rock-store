@@ -2,8 +2,10 @@ package br.com.giramundo.store.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import br.com.giramundo.store.model.Event;
 import br.com.giramundo.store.service.EventService;
 
 @Controller
@@ -29,6 +31,15 @@ public class PublicPagesController {
     public String events(Model model) {
         model.addAttribute("events", eventService.findAll());
         return "eventos";
+    }
+
+    @GetMapping("/eventos/{id}")
+    public String eventDetail(@PathVariable String id, Model model) {
+        Event event = eventService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Evento não encontrado."));
+
+        model.addAttribute("event", event);
+        return "evento-detalhe";
     }
 
     @GetMapping("/login")

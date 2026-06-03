@@ -43,7 +43,7 @@
         </div>
 
         <div class="events-grid" id="eventsGrid">
-          <article class="event-card" th:each="item : ${events}"
+          <a class="event-card event-card-link" th:each="item : ${events}" th:href="@{'/eventos/' + ${item.id}}"
                    th:attr="data-search=${#strings.toLowerCase((item.title ?: '') + ' ' + (item.description ?: '') + ' ' + (item.publishedAt ?: ''))}">
             <div class="event-media">
               <img th:if="${item.image != null and !#strings.isEmpty(item.image)}" th:src="@{'/uploads/' + ${item.image}}" th:alt="|Flyer de ${item.title}|">
@@ -51,14 +51,15 @@
             </div>
             <div class="event-body">
               <div class="event-meta">
-                <time th:if="${item.publishedAt != null}" th:datetime="${item.publishedAt}" th:text="|Publicado em ${item.publishedAt}|">Publicado em</time>
+                <time th:if="${item.publishedAt != null}" th:datetime="${item.publishedAt}" th:text="|Publicado em ${#temporals.format(T(java.time.OffsetDateTime).parse(item.publishedAt), 'dd/MM/yyyy')}|">Publicado em</time>
                 <time th:unless="${item.publishedAt != null}">Data indisponível</time>
                 <span class="event-tag">Evento</span>
               </div>
               <h3 th:text="${item.title}">Título do evento</h3>
               <p th:text="${item.description}">Descrição do evento.</p>
+              <span class="event-link-hint">Abrir publicação</span>
             </div>
-          </article>
+          </a>
         </div>
 
         <div class="events-empty" id="eventsEmpty" hidden>

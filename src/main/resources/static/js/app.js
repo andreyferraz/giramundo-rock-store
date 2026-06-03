@@ -27,6 +27,11 @@ const productSearch = document.getElementById("productSearch");
 const eventsSearch = document.getElementById("eventsSearch");
 const eventsGrid = document.getElementById("eventsGrid");
 const eventsEmpty = document.getElementById("eventsEmpty");
+const shareEventBtn = document.getElementById("shareEventBtn");
+const copyEventLinkBtn = document.getElementById("copyEventLinkBtn");
+const shareWhatsApp = document.getElementById("shareWhatsApp");
+const shareFacebook = document.getElementById("shareFacebook");
+const shareX = document.getElementById("shareX");
 
 const addressFields = [
     "customerName",
@@ -128,6 +133,78 @@ function renderEventsFilter() {
 
     if (eventsEmpty) {
         eventsEmpty.hidden = visibleCount !== 0;
+    }
+}
+
+function getEventShareData() {
+    return window.__eventShareData || null;
+}
+
+function buildShareText() {
+    const data = getEventShareData();
+    if (!data) return "";
+
+    return `${data.title}\n\n${data.description}\n\n${data.url}`;
+}
+
+function setupEventSharing() {
+    const data = getEventShareData();
+    if (!data) return;
+
+    const text = `${data.title} - ${data.description}`;
+    const encodedText = encodeURIComponent(text);
+    const encodedUrl = encodeURIComponent(data.url);
+
+    if (shareWhatsApp) {
+        shareWhatsApp.href = `https://wa.me/?text=${encodeURIComponent(buildShareText())}`;
+    }
+
+    if (shareFacebook) {
+        shareFacebook.href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+    }
+
+    if (shareX) {
+        shareX.href = `https://twitter.com/intent/tweet?text=${encodedText}%20${encodedUrl}`;
+    }
+
+    if (shareEventBtn) {
+        shareEventBtn.addEventListener("click", async () => {
+            const sharePayload = {
+                title: data.title,
+                text: text,
+                url: data.url
+            };
+
+            if (navigator.share) {
+                try {
+                    await navigator.share(sharePayload);
+                    return;
+                } catch (error) {
+                    // fallback abaixo
+                }
+            }
+
+            try {
+                await navigator.clipboard.writeText(buildShareText());
+                alert("Link da publicação copiado para a área de transferência.");
+            } catch (error) {
+                window.prompt("Copie o link da publicação", data.url);
+            }
+        });
+    }
+
+    if (copyEventLinkBtn) {
+        copyEventLinkBtn.addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText(data.url);
+                copyEventLinkBtn.textContent = "Link copiado";
+                setTimeout(() => {
+                    copyEventLinkBtn.textContent = "Copiar link";
+                }, 1800);
+            } catch (error) {
+                window.prompt("Copie o link da publicação", data.url);
+            }
+        });
     }
 }
 
@@ -291,6 +368,22 @@ function openCart() {
     cartDrawer.setAttribute("aria-hidden", "false");
 }
 
+function bindGlobalCartControls() {
+    if (openCartBtn) {
+        openCartBtn.addEventListener("click", openCart);
+    }
+
+    if (closeCartBtn) {
+        closeCartBtn.addEventListener("click", closeCart);
+    }
+
+    if (cartDrawer) {
+        cartDrawer.addEventListener("click", event => {
+            if (event.target === cartDrawer) closeCart();
+        });
+    }
+}
+
 function closeCart() {
     cartDrawer.classList.remove("open");
     cartDrawer.setAttribute("aria-hidden", "true");
@@ -301,14 +394,8 @@ function closeCart() {
 }
 
 function setupEvents() {
-    openCartBtn.addEventListener("click", openCart);
-    closeCartBtn.addEventListener("click", closeCart);
     clearCartBtn.addEventListener("click", clearCart);
     sendOrderBtn.addEventListener("click", sendOrderToWhatsapp);
-
-    cartDrawer.addEventListener("click", event => {
-        if (event.target === cartDrawer) closeCart();
-    });
 
     [...addressFields, "complement"].forEach(id => {
         document.getElementById(id).addEventListener("input", validateOrder);
@@ -360,14 +447,15 @@ async function loadProducts() {
 
 function init() {
     setupFooter();
+    bindGlobalCartControls();
 
-    if (!cartDrawer || !cartItems || !cartCounter || !cartTotal || !sendOrderBtn || !clearCartBtn || !openCartBtn || !closeCartBtn || !validationMessage) {
-        return;
+    if (cartDrawer && cartItems && cartCounter && cartTotal && sendOrderBtn && clearCartBtn && openCartBtn && closeCartBtn && validationMessage) {
+        setupEvents();
+        renderCart();
     }
 
-    setupEvents();
-    renderCart();
     updateActiveNavLink();
+    setupEventSharing();
 
     if (displayWhatsapp) {
         displayWhatsapp.textContent = CONFIG.whatsappNumber;
@@ -386,13 +474,6 @@ function setupFooter() {
     const yearEl = document.getElementById('footerYear');
     if (yearEl) {
         yearEl.textContent = new Date().getFullYear();
-    }
-
-    const adminBtn = document.getElementById('adminPanelBtn');
-    if (adminBtn) {
-        adminBtn.addEventListener('click', () => {
-            window.location.href = '/admin';
-        });
     }
 }
 
