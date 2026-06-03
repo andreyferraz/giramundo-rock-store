@@ -57,6 +57,16 @@ const addressFields = [
 ];
 
 function formatMoney(value) {
+    const numericValue = Number(value);
+
+    if (Number.isNaN(numericValue)) {
+        return formatMoney(0);
+    }
+
+    return numericValue.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
 }
 
 function normalizeText(value) {
@@ -105,7 +115,7 @@ function renderProducts() {
 
     productGrid.innerHTML = pageProducts.map(product => {
         const imageUrl = getProductImageUrl(product);
-        const price = Number(product.price || 0);
+        const price = product.price ?? 0;
         const quantity = product.quantity ?? 0;
 
         return `
