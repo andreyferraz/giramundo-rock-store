@@ -65,6 +65,7 @@ const openCartBtn = document.getElementById("openCartBtn");
 const closeCartBtn = document.getElementById("closeCartBtn");
 const validationMessage = document.getElementById("cartValidationMessage");
 const displayWhatsapp = document.getElementById("displayWhatsapp");
+const mainNavLinks = document.querySelectorAll(".main-nav a");
 
 const addressFields = [
     "customerName",
@@ -302,6 +303,7 @@ function init() {
 
     setupEvents();
     renderCart();
+    updateActiveNavLink();
 
     if (displayWhatsapp) {
         displayWhatsapp.textContent = CONFIG.whatsappNumber;
@@ -310,6 +312,9 @@ function init() {
     if (productGrid) {
         renderProducts();
     }
+
+    window.addEventListener("hashchange", updateActiveNavLink);
+    window.addEventListener("popstate", updateActiveNavLink);
 }
 
 init();
@@ -326,4 +331,27 @@ function setupFooter() {
             window.location.href = '/admin';
         });
     }
+}
+
+function getCurrentNavTarget() {
+    if (window.location.pathname === "/sobre") {
+        return "/sobre";
+    }
+
+    return window.location.hash || "#home";
+}
+
+function updateActiveNavLink() {
+    const currentTarget = getCurrentNavTarget();
+
+    mainNavLinks.forEach(link => {
+        const isActive = link.getAttribute("href") === currentTarget;
+        link.classList.toggle("is-active", isActive);
+
+        if (isActive) {
+            link.setAttribute("aria-current", "page");
+        } else {
+            link.removeAttribute("aria-current");
+        }
+    });
 }

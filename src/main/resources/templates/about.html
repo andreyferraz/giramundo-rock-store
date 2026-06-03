@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR" th:replace="~{layout :: layout('Sobre | Giramundo', ~{::content})}">
+    <head>
+        <title>Sobre | Giramundo</title>
+    </head>
+  <div th:fragment="content">
+
+    <main>
+        <section class="hero" id="about-hero">
+            <div class="hero-content">
+                <p class="eyebrow">Sobre a marca</p>
+                <h1>Identidade forte para quem vive com atitude.</h1>
+                <p class="hero-description">
+                    O Gira Mundo nasceu para traduzir liberdade, estrada e presença visual em uma marca com personalidade própria. A proposta é unir estética rock, energia de palco e uma experiência de compra simples, direta e marcante.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="/#loja">Ver produtos</a>
+                    <a class="btn btn-secondary" href="/#contato">Falar com a marca</a>
+                </div>
+            </div>
+
+            <div class="hero-card" aria-label="Resumo da identidade Gira Mundo">
+                <img th:src="@{/img/logo-giramundo.png}" alt="Logo Giramundo em destaque">
+                <div>
+                    <span>GIRAMUNDO ORIGINAL</span>
+                    <strong>História, identidade e presença</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="section about-section" id="historia">
+            <div class="section-header">
+                <p class="eyebrow">História</p>
+                <h2>Uma marca criada para ter voz, ritmo e direção.</h2>
+            </div>
+
+            <div class="about-grid">
+                <article class="about-card">
+                    <h3>Origem</h3>
+                    <p>O Gira Mundo foi pensado como uma marca que carrega movimento no nome e atitude na entrega, sem abrir mão de clareza visual.</p>
+                </article>
+                <article class="about-card">
+                    <h3>Identidade</h3>
+                    <p>A linguagem visual mistura preto, dourado e branco para reforçar força, contraste e sofisticação em cada detalhe da experiência.</p>
+                </article>
+                <article class="about-card">
+                    <h3>Experiência</h3>
+                    <p>A loja foi desenhada para ser objetiva: escolher produtos, ajustar o pedido e finalizar a solicitação com fluidez pelo WhatsApp.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="proposta">
+            <div class="section-header split">
+                <div>
+                    <p class="eyebrow">Proposta</p>
+                    <h2>Uma presença de marca que combina estilo e funcionalidade.</h2>
+                </div>
+                <p class="section-note">A mesma identidade acompanha a vitrine, o carrinho e o painel administrativo.</p>
+            </div>
+
+            <div class="about-grid">
+                <article class="about-card">
+                    <h3>Estética</h3>
+                    <p>Elementos escuros, tipografia marcante e destaques dourados constroem um visual com pegada editorial e personalidade de palco.</p>
+                </article>
+                <article class="about-card">
+                    <h3>Objetivo</h3>
+                    <p>Criar uma experiência que seja simples para o cliente e consistente para a marca, com espaço para evoluir junto do negócio.</p>
+                </article>
+                <article class="about-card">
+                    <h3>Evolução</h3>
+                    <p>A estrutura já está pronta para crescer com novas páginas, novos produtos e integrações com backend sem perder a linguagem visual.</p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+  </div>
+</html>
