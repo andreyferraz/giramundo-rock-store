@@ -369,11 +369,14 @@ function setupFooter() {
 }
 
 function getCurrentNavTarget() {
-    if (window.location.pathname === "/sobre") {
-        return "/sobre";
+    const pathname = window.location.pathname;
+
+    if (pathname === "/loja" || pathname === "/sobre") {
+        return pathname;
     }
 
-    return window.location.hash || "#home";
+    const hash = window.location.hash || "#home";
+    return `/${hash}`;
 }
 
 function updateActiveNavLink() {
