@@ -26,12 +26,19 @@ const mainNavLinks = document.querySelectorAll(".main-nav a");
 const productSearch = document.getElementById("productSearch");
 const eventsSearch = document.getElementById("eventsSearch");
 const eventsGrid = document.getElementById("eventsGrid");
+const eventsPagination = document.getElementById("eventsPagination");
 const eventsEmpty = document.getElementById("eventsEmpty");
 const shareEventBtn = document.getElementById("shareEventBtn");
 const copyEventLinkBtn = document.getElementById("copyEventLinkBtn");
 const shareWhatsApp = document.getElementById("shareWhatsApp");
 const shareFacebook = document.getElementById("shareFacebook");
 const shareX = document.getElementById("shareX");
+
+const EVENTS_PER_PAGE = 6;
+
+const eventsState = {
+    currentPage: 1
+};
 
 const addressFields = [
     "customerName",
@@ -117,23 +124,67 @@ function renderProducts() {
 }
 
 function renderEventsFilter() {
-    if (!eventsGrid || !eventsSearch) return;
+    if (!eventsGrid) return;
 
-    const query = normalizeText(eventsSearch.value);
+    const query = normalizeText(eventsSearch ? eventsSearch.value : "");
     const cards = eventsGrid.querySelectorAll(".event-card");
-    let visibleCount = 0;
+    const visibleCards = [];
 
     cards.forEach(card => {
         const searchable = normalizeText(card.dataset.search || card.textContent || "");
         const isVisible = !query || searchable.includes(query);
 
-        card.classList.toggle("is-hidden", !isVisible);
-        if (isVisible) visibleCount += 1;
+        if (isVisible) {
+            visibleCards.push(card);
+        }
+    });
+
+    const totalPages = Math.max(1, Math.ceil(visibleCards.length / EVENTS_PER_PAGE));
+    if (eventsState.currentPage > totalPages) {
+        eventsState.currentPage = totalPages;
+    }
+
+    cards.forEach(card => {
+        card.classList.add("is-hidden");
+    });
+
+    const startIndex = (eventsState.currentPage - 1) * EVENTS_PER_PAGE;
+    const endIndex = startIndex + EVENTS_PER_PAGE;
+
+    visibleCards.slice(startIndex, endIndex).forEach(card => {
+        card.classList.remove("is-hidden");
     });
 
     if (eventsEmpty) {
-        eventsEmpty.hidden = visibleCount !== 0;
+        eventsEmpty.hidden = visibleCards.length !== 0;
     }
+
+    renderEventsPagination(totalPages, visibleCards.length);
+}
+
+function renderEventsPagination(totalPages, totalItems) {
+    if (!eventsPagination) return;
+
+    if (totalItems === 0 || totalPages <= 1) {
+        eventsPagination.innerHTML = "";
+        eventsPagination.hidden = true;
+        return;
+    }
+
+    eventsPagination.hidden = false;
+
+    const previousDisabled = eventsState.currentPage === 1 ? "disabled" : "";
+    const nextDisabled = eventsState.currentPage === totalPages ? "disabled" : "";
+
+    eventsPagination.innerHTML = `
+        <button type="button" class="btn btn-secondary btn-small" data-pagination-action="prev" ${previousDisabled}>
+            Anterior
+        </button>
+        <span class="events-pagination-info">Página ${eventsState.currentPage} de ${totalPages}</span>
+        <button type="button" class="btn btn-secondary btn-small" data-pagination-action="next" ${nextDisabled}>
+            Próxima
+        </button>
+    `;
 }
 
 function getEventShareData() {
@@ -409,7 +460,34 @@ function setupEvents() {
     }
 
     if (eventsSearch) {
-        eventsSearch.addEventListener("input", renderEventsFilter);
+        eventsSearch.addEventListener("input", () => {
+            eventsState.currentPage = 1;
+            renderEventsFilter();
+        });
+    }
+
+    if (eventsPagination) {
+        eventsPagination.addEventListener("click", event => {
+            const button = event.target.closest("button[data-pagination-action]");
+            if (!button || button.disabled) return;
+
+            if (button.dataset.paginationAction === "prev") {
+                eventsState.currentPage = Math.max(1, eventsState.currentPage - 1);
+            }
+
+            if (button.dataset.paginationAction === "next") {
+                const visibleCards = [...eventsGrid.querySelectorAll(".event-card")].filter(card => {
+                    const searchable = normalizeText(card.dataset.search || card.textContent || "");
+                    const query = normalizeText(eventsSearch ? eventsSearch.value : "");
+                    return !query || searchable.includes(query);
+                });
+                const totalPages = Math.max(1, Math.ceil(visibleCards.length / EVENTS_PER_PAGE));
+                eventsState.currentPage = Math.min(totalPages, eventsState.currentPage + 1);
+            }
+
+            renderEventsFilter();
+            eventsGrid.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
     }
 
     if (productGrid) {

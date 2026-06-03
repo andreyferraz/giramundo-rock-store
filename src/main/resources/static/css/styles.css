@@ -381,6 +381,21 @@ input {
     text-align: center;
 }
 
+.events-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 22px;
+    flex-wrap: wrap;
+}
+
+.events-pagination-info {
+    color: var(--muted);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
 .about-card,
 .product-card,
 .event-card,
