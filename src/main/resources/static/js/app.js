@@ -5,53 +5,10 @@ const CONFIG = {
     companyName: "Giramundo"
 };
 
-const products = [
-    {
-        id: 1,
-        name: "Camiseta Eagle Road",
-        description: "Camiseta premium com estampa frontal inspirada na águia Giramundo.",
-        price: 89.9,
-        badge: "01"
-    },
-    {
-        id: 2,
-        name: "Boné Rock Rider",
-        description: "Boné preto com acabamento urbano e detalhe dourado para uso diário.",
-        price: 69.9,
-        badge: "02"
-    },
-    {
-        id: 3,
-        name: "Moletom World Tour",
-        description: "Moletom encorpado para quem carrega atitude em qualquer estrada.",
-        price: 189.9,
-        badge: "03"
-    },
-    {
-        id: 4,
-        name: "Adesivo Giramundo Classic",
-        description: "Kit de adesivos com estética rock, ideal para notebook, bike ou case.",
-        price: 24.9,
-        badge: "04"
-    },
-    {
-        id: 5,
-        name: "Caneca Backstage",
-        description: "Caneca preta com visual backstage para café, oficina ou escritório.",
-        price: 49.9,
-        badge: "05"
-    },
-    {
-        id: 6,
-        name: "Ecobag Freedom Wings",
-        description: "Bolsa resistente com visual dark e detalhe de asas em destaque.",
-        price: 59.9,
-        badge: "06"
-    }
-];
-
 const state = {
-    cart: JSON.parse(localStorage.getItem("giramundo_cart") || "[]")
+    cart: JSON.parse(localStorage.getItem("giramundo_cart") || "[]"),
+    products: [],
+    searchTerm: ""
 };
 
 const productGrid = document.getElementById("productGrid");
@@ -66,6 +23,7 @@ const closeCartBtn = document.getElementById("closeCartBtn");
 const validationMessage = document.getElementById("cartValidationMessage");
 const displayWhatsapp = document.getElementById("displayWhatsapp");
 const mainNavLinks = document.querySelectorAll(".main-nav a");
+const productSearch = document.getElementById("productSearch");
 
 const addressFields = [
     "customerName",
@@ -88,37 +46,81 @@ function saveCart() {
     localStorage.setItem("giramundo_cart", JSON.stringify(state.cart));
 }
 
+function normalizeText(value) {
+    return String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
+function getProductImageUrl(product) {
+    if (product.image) {
+        return `/uploads/${product.image}`;
+    }
+
+    return null;
+}
+
 function renderProducts() {
-    productGrid.innerHTML = products.map(product => `
+    if (!productGrid) return;
+
+    const filteredProducts = state.products.filter(product => {
+        const query = normalizeText(state.searchTerm);
+        if (!query) return true;
+
+        const searchable = [product.name, product.description, product.price]
+            .map(normalizeText)
+            .join(" ");
+
+        return searchable.includes(query);
+    });
+
+    if (filteredProducts.length === 0) {
+        productGrid.innerHTML = `<div class="empty-cart product-empty">Nenhum produto encontrado para a pesquisa atual.</div>`;
+        return;
+    }
+
+    productGrid.innerHTML = filteredProducts.map(product => {
+        const imageUrl = getProductImageUrl(product);
+        const price = Number(product.price || 0);
+        const quantity = product.quantity ?? 0;
+
+        return `
         <article class="product-card">
-            <div class="product-media" aria-hidden="true">
-                <span>${product.badge}</span>
+            <div class="product-media ${imageUrl ? "has-image" : ""}" aria-hidden="true">
+                ${imageUrl ? `<img src="${imageUrl}" alt="${product.name}">` : `<span>${String(product.name || "").slice(0, 2).toUpperCase()}</span>`}
             </div>
             <div class="product-body">
+                <div class="product-meta">
+                    <strong class="product-stock">${quantity > 0 ? `${quantity} em estoque` : "Sob consulta"}</strong>
+                </div>
                 <h3>${product.name}</h3>
-                <p>${product.description}</p>
+                <p>${product.description || "Produto disponível no painel admin."}</p>
                 <div class="product-footer">
-                    <strong class="price">${formatMoney(product.price)}</strong>
-                    <button class="btn btn-primary" type="button" onclick="addToCart(${product.id})">
-                        Adicionar
+                    <strong class="price">${formatMoney(price)}</strong>
+                    <button class="btn btn-primary" type="button" data-product-id="${product.id}">
+                        Comprar
                     </button>
                 </div>
             </div>
         </article>
-    `).join("");
+    `;
+    }).join("");
 }
 
 function addToCart(productId) {
-    const product = products.find(item => item.id === productId);
+    const product = state.products.find(item => String(item.id) === String(productId));
+    if (!product) return;
     const existingItem = state.cart.find(item => item.id === productId);
 
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
         state.cart.push({
-            id: product.id,
+            id: String(product.id),
             name: product.name,
-            price: product.price,
+            price: Number(product.price || 0),
+            image: product.image || "",
             quantity: 1
         });
     }
@@ -129,7 +131,7 @@ function addToCart(productId) {
 }
 
 function updateQuantity(productId, operation) {
-    const item = state.cart.find(cartItem => cartItem.id === productId);
+    const item = state.cart.find(cartItem => String(cartItem.id) === String(productId));
     if (!item) return;
 
     if (operation === "increase") {
@@ -150,7 +152,7 @@ function updateQuantity(productId, operation) {
 }
 
 function removeFromCart(productId) {
-    state.cart = state.cart.filter(item => item.id !== productId);
+    state.cart = state.cart.filter(item => String(item.id) !== String(productId));
     saveCart();
     renderCart();
 }
@@ -162,7 +164,7 @@ function clearCart() {
 }
 
 function getCartTotal() {
-    return state.cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    return state.cart.reduce((total, item) => total + Number(item.price || 0) * item.quantity, 0);
 }
 
 function getCartCount() {
@@ -180,14 +182,14 @@ function renderCart() {
             <div class="cart-item">
                 <div>
                     <h4>${item.name}</h4>
-                    <p>${formatMoney(item.price)} cada • Subtotal: ${formatMoney(item.price * item.quantity)}</p>
+                    <p>${formatMoney(Number(item.price || 0))} cada • Subtotal: ${formatMoney(Number(item.price || 0) * item.quantity)}</p>
                 </div>
                 <div class="qty-control" aria-label="Controle de quantidade">
-                    <button type="button" onclick="updateQuantity(${item.id}, 'decrease')">−</button>
+                    <button type="button" onclick="updateQuantity('${item.id}', 'decrease')">−</button>
                     <strong>${item.quantity}</strong>
-                    <button type="button" onclick="updateQuantity(${item.id}, 'increase')">+</button>
+                    <button type="button" onclick="updateQuantity('${item.id}', 'increase')">+</button>
                 </div>
-                <button class="remove-btn" type="button" onclick="removeFromCart(${item.id})">Remover item</button>
+                <button class="remove-btn" type="button" onclick="removeFromCart('${item.id}')">Remover item</button>
             </div>
         `).join("");
     }
@@ -234,7 +236,7 @@ function buildOrderMessage() {
     };
 
     const productLines = state.cart.map((item, index) => {
-        return `${index + 1}. ${item.name}\nQuantidade: ${item.quantity}\nValor unitário: ${formatMoney(item.price)}\nSubtotal: ${formatMoney(item.price * item.quantity)}`;
+        return `${index + 1}. ${item.name}\nQuantidade: ${item.quantity}\nValor unitário: ${formatMoney(Number(item.price || 0))}\nSubtotal: ${formatMoney(Number(item.price || 0) * item.quantity)}`;
     }).join("\n\n");
 
     const address = `${customer.street}, ${customer.number} - ${customer.district}, ${customer.city}/${customer.state}`;
@@ -289,9 +291,44 @@ function setupEvents() {
         document.getElementById(id).addEventListener("input", validateOrder);
     });
 
+    if (productSearch) {
+        productSearch.addEventListener("input", event => {
+            state.searchTerm = event.target.value;
+            renderProducts();
+        });
+    }
+
+    if (productGrid) {
+        productGrid.addEventListener("click", event => {
+            const button = event.target.closest("button[data-product-id]");
+            if (!button) return;
+
+            addToCart(button.dataset.productId);
+        });
+    }
+
     document.addEventListener("keydown", event => {
         if (event.key === "Escape") closeCart();
     });
+}
+
+async function loadProducts() {
+    if (!productGrid) return;
+
+    try {
+        const response = await fetch("/api/products", { headers: { Accept: "application/json" } });
+        if (!response.ok) {
+            throw new Error("Falha ao carregar produtos");
+        }
+
+        state.products = await response.json();
+    } catch (error) {
+        state.products = [];
+        productGrid.innerHTML = `<div class="empty-cart product-empty">Não foi possível carregar os produtos do painel admin.</div>`;
+        return;
+    }
+
+    renderProducts();
 }
 
 function init() {
@@ -309,9 +346,7 @@ function init() {
         displayWhatsapp.textContent = CONFIG.whatsappNumber;
     }
 
-    if (productGrid) {
-        renderProducts();
-    }
+    loadProducts();
 
     window.addEventListener("hashchange", updateActiveNavLink);
     window.addEventListener("popstate", updateActiveNavLink);

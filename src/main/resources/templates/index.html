@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="pt-BR" th:replace="~{layout :: layout('Gira Mundo', ~{::content})}">
+    <head>
+        <title>Gira Mundo</title>
+    </head>
   <div th:fragment="content">
 
     <main>
@@ -52,7 +55,13 @@
                     <p class="eyebrow">Loja</p>
                     <h2>Produtos em destaque</h2>
                 </div>
-                <p class="section-note">Produtos mockados no JavaScript. Depois você pode buscar via API Spring.</p>
+                <div class="shop-tools">
+                    <label class="search-field">
+                        <span class="search-field-label">Pesquisar</span>
+                        <input type="search" id="productSearch" placeholder="Busque por nome, descrição ou preço">
+                    </label>
+                    <p class="section-note">Os produtos são carregados do painel admin e filtrados em tempo real.</p>
+                </div>
             </div>
 
             <div class="product-grid" id="productGrid" aria-live="polite"></div>

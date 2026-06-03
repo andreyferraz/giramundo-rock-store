@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR" th:replace="~{layout :: layout('Loja | Giramundo', ~{::content})}">
+  <head>
+    <title>Loja | Giramundo</title>
+  </head>
+  <div th:fragment="content">
+    <main>
+        <section class="hero" id="shop-hero">
+            <div class="hero-content">
+                <p class="eyebrow">Loja Giramundo</p>
+                <h1>Produtos criados para quem carrega atitude.</h1>
+                <p class="hero-description">
+                    Navegue pelos itens cadastrados no painel admin, filtre o que quiser encontrar e compre em poucos cliques. O carrinho é salvo no navegador para manter sua seleção entre visitas.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="#productGrid">Explorar produtos</a>
+                    <a class="btn btn-secondary" href="/#sobre">Conhecer a marca</a>
+                </div>
+            </div>
+
+            <div class="hero-card" aria-label="Destaque da loja Giramundo">
+                <img th:src="@{/img/logo-giramundo.png}" alt="Logo Giramundo em destaque">
+                <div>
+                    <span>GIRAMUNDO STORE</span>
+                    <strong>Catálogo vivo do painel admin</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="section shop-section" id="shop-catalog">
+            <div class="section-header split">
+                <div>
+                    <p class="eyebrow">Catálogo</p>
+                    <h2>Produtos disponíveis agora</h2>
+                </div>
+                <div class="shop-tools">
+                    <label class="search-field">
+                        <span class="search-field-label">Pesquisar</span>
+                        <input type="search" id="productSearch" placeholder="Busque por nome, descrição ou preço">
+                    </label>
+                    <p class="section-note">Os cards vêm do painel admin e a busca roda em tempo real.</p>
+                </div>
+            </div>
+
+            <div class="product-grid" id="productGrid" aria-live="polite"></div>
+        </section>
+    </main>
+  </div>
+</html>
