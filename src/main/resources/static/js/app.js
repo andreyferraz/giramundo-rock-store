@@ -29,6 +29,8 @@ const eventsSearch = document.getElementById("eventsSearch");
 const eventsGrid = document.getElementById("eventsGrid");
 const eventsPagination = document.getElementById("eventsPagination");
 const eventsEmpty = document.getElementById("eventsEmpty");
+const financialMonthField = document.getElementById("financialMonthField");
+const financialMonthSelector = document.querySelector(".financial-month-selector");
 const shareEventBtn = document.getElementById("shareEventBtn");
 const copyEventLinkBtn = document.getElementById("copyEventLinkBtn");
 const shareWhatsApp = document.getElementById("shareWhatsApp");
@@ -275,6 +277,33 @@ function setupEventSharing() {
             }
         });
     }
+}
+
+function setupFinancialFilter() {
+    if (!financialMonthSelector || !financialMonthField) return;
+
+    const activeMonth = financialMonthField.value;
+    financialMonthSelector.querySelectorAll("a[data-month-value]").forEach(link => {
+        link.classList.toggle("is-active", link.dataset.monthValue === activeMonth);
+        if (link.dataset.monthValue === activeMonth) {
+            link.setAttribute("aria-current", "true");
+        } else {
+            link.removeAttribute("aria-current");
+        }
+    });
+
+    financialMonthSelector.addEventListener("click", event => {
+        const monthLink = event.target.closest("a[data-month-value]");
+        if (!monthLink) return;
+
+        event.preventDefault();
+        financialMonthField.value = monthLink.dataset.monthValue;
+
+        const form = financialMonthSelector.closest("form");
+        if (form) {
+            form.submit();
+        }
+    });
 }
 
 function addToCart(productId) {
@@ -602,6 +631,7 @@ async function loadProducts() {
 function init() {
     setupFooter();
     bindGlobalCartControls();
+    setupFinancialFilter();
 
     if (cartDrawer && cartItems && cartCounter && cartTotal && sendOrderBtn && clearCartBtn && openCartBtn && closeCartBtn && validationMessage) {
         setupEvents();

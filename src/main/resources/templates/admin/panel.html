@@ -293,10 +293,27 @@
           </div>
 
           <form class="admin-form financial-filter-form" th:action="@{/admin/financial}" method="get">
+            <input type="hidden" name="month" id="financialMonthField" th:value="${financialMonth}">
+
+            <div class="financial-month-selector" aria-label="Selecionar mês">
+              <a class="financial-month-pill" href="#" data-month-value="1">Janeiro</a>
+              <a class="financial-month-pill" href="#" data-month-value="2">Fevereiro</a>
+              <a class="financial-month-pill" href="#" data-month-value="3">Março</a>
+              <a class="financial-month-pill" href="#" data-month-value="4">Abril</a>
+              <a class="financial-month-pill" href="#" data-month-value="5">Maio</a>
+              <a class="financial-month-pill" href="#" data-month-value="6">Junho</a>
+              <a class="financial-month-pill" href="#" data-month-value="7">Julho</a>
+              <a class="financial-month-pill" href="#" data-month-value="8">Agosto</a>
+              <a class="financial-month-pill" href="#" data-month-value="9">Setembro</a>
+              <a class="financial-month-pill" href="#" data-month-value="10">Outubro</a>
+              <a class="financial-month-pill" href="#" data-month-value="11">Novembro</a>
+              <a class="financial-month-pill" href="#" data-month-value="12">Dezembro</a>
+            </div>
+
             <div class="admin-form-grid">
               <label>
-                Mês de referência
-                <input type="month" name="month" th:value="${financialMonth}">
+                Ano de referência
+                <input type="number" name="year" min="2000" max="2100" placeholder="2026" th:value="${financialYear}">
               </label>
 
               <div class="financial-filter-actions">

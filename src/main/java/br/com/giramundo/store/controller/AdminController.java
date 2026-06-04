@@ -11,6 +11,7 @@ import br.com.giramundo.store.service.FinancialService;
 import br.com.giramundo.store.service.ProductService;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -45,6 +46,7 @@ public class AdminController {
     private static final String ATTR_ENTRIES = "entries";
     private static final String ATTR_ENTRY = "entry";
     private static final String ATTR_FINANCIAL_MONTH = "financialMonth";
+    private static final String ATTR_FINANCIAL_YEAR = "financialYear";
     private static final String ATTR_FINANCIAL_SUMMARY = "financialSummary";
     private static final String ATTR_SUCCESS_MESSAGE = "successMessage";
     private static final String ATTR_ERROR_MESSAGE = "errorMessage";
@@ -223,19 +225,22 @@ public class AdminController {
     }
 
     @GetMapping("/financial")
-    public String financial(Principal principal, @RequestParam(required = false) String month, Model model) {
-        return renderFinancialPage(principal, model, new FinancialEntry(), null, null, month);
+    public String financial(Principal principal,
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) Integer year,
+            Model model) {
+        return renderFinancialPage(principal, model, new FinancialEntry(), null, null, month, year);
     }
 
     @GetMapping("/financial/new")
     public String newFinancial(Principal principal, Model model) {
-        return renderFinancialPage(principal, model, new FinancialEntry(), null, null, null);
+        return renderFinancialPage(principal, model, new FinancialEntry(), null, null, null, null);
     }
 
     @GetMapping("/financial/edit/{id}")
     public String editFinancial(Principal principal, @PathVariable UUID id, Model model) {
         FinancialEntry entry = financialService.findById(id).orElseThrow(() -> new IllegalArgumentException("FinancialEntry não encontrado."));
-        return renderFinancialPage(principal, model, entry, null, null, null);
+        return renderFinancialPage(principal, model, entry, null, null, null, null);
     }
 
     @PostMapping("/financial/save")
@@ -312,18 +317,22 @@ public class AdminController {
     }
 
     private String renderFinancialPage(Principal principal, Model model, FinancialEntry entry,
-            String successMessage, String errorMessage, String monthFilter) {
+            String successMessage, String errorMessage, String monthFilter, Integer yearFilter) {
         Admin currentAdmin = currentAdmin(principal);
+        YearMonth currentMonth = YearMonth.now();
+        String effectiveMonth = StringUtils.hasText(monthFilter) ? monthFilter : String.valueOf(currentMonth.getMonthValue());
+        Integer effectiveYear = yearFilter != null ? yearFilter : currentMonth.getYear();
         model.addAttribute(ATTR_ACTIVE_TAB, TAB_FINANCIAL);
         model.addAttribute(ATTR_CURRENT_ADMIN, currentAdmin.getUsername());
         model.addAttribute(ATTR_ADMIN, currentAdmin);
         List<FinancialEntry> allEntries = toList(financialService.findAll());
-        List<FinancialEntry> filteredEntries = filterByMonth(allEntries, monthFilter);
+        List<FinancialEntry> filteredEntries = filterByMonth(allEntries, effectiveMonth, effectiveYear);
         model.addAttribute(ATTR_ENTRIES, filteredEntries);
         model.addAttribute(ATTR_ENTRY, entry);
         model.addAttribute(ATTR_PRODUCTS, productService.findAll());
         model.addAttribute(ATTR_PRODUCT, new Product());
-        model.addAttribute(ATTR_FINANCIAL_MONTH, monthFilter);
+        model.addAttribute(ATTR_FINANCIAL_MONTH, effectiveMonth);
+        model.addAttribute(ATTR_FINANCIAL_YEAR, effectiveYear);
         model.addAttribute(ATTR_FINANCIAL_SUMMARY, buildFinancialSummary(filteredEntries));
         addSharedMessages(model, successMessage, errorMessage);
         return VIEW_PANEL;
@@ -335,12 +344,12 @@ public class AdminController {
         return list;
     }
 
-    private List<FinancialEntry> filterByMonth(List<FinancialEntry> entries, String monthFilter) {
-        if (!StringUtils.hasText(monthFilter)) {
+    private List<FinancialEntry> filterByMonth(List<FinancialEntry> entries, String monthFilter, Integer yearFilter) {
+        if (!StringUtils.hasText(monthFilter) || yearFilter == null) {
             return entries;
         }
 
-        YearMonth selectedMonth = YearMonth.parse(monthFilter);
+        YearMonth selectedMonth = YearMonth.of(yearFilter, Integer.parseInt(monthFilter));
         return entries.stream()
                 .filter(entry -> StringUtils.hasText(entry.getOccurredAt()))
                 .filter(entry -> extractYearMonth(entry.getOccurredAt()).map(selectedMonth::equals).orElse(false))
@@ -375,10 +384,22 @@ public class AdminController {
         }
 
         try {
-            LocalDate localDate = LocalDate.parse(occurredAt, FINANCIAL_DATE_FORMATTER);
+            LocalDate localDate = parseFinancialDate(occurredAt);
             return Optional.of(YearMonth.from(localDate));
         } catch (DateTimeParseException ex) {
             return Optional.empty();
+        }
+    }
+
+    private LocalDate parseFinancialDate(String occurredAt) {
+        try {
+            return LocalDate.parse(occurredAt, FINANCIAL_DATE_FORMATTER);
+        } catch (DateTimeParseException firstError) {
+            try {
+                return OffsetDateTime.parse(occurredAt).toLocalDate();
+            } catch (DateTimeParseException secondError) {
+                return LocalDate.parse(occurredAt);
+            }
         }
     }
 
