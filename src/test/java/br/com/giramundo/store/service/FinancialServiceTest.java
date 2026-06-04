@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,7 +37,7 @@ class FinancialServiceTest {
         sample.setId(UUID.randomUUID().toString());
         sample.setType("IN");
         sample.setPrice(123.45);
-        sample.setOccurredAt(OffsetDateTime.now());
+        sample.setOccurredAt("03/06/2026");
         sample.setDescription("teste");
     }
 
@@ -79,13 +78,14 @@ class FinancialServiceTest {
         FinancialEntry updated = new FinancialEntry();
         updated.setType("OUT");
         updated.setPrice(50.0);
-        updated.setOccurredAt(OffsetDateTime.now());
+        updated.setOccurredAt("04/06/2026");
         updated.setDescription("updated");
 
         FinancialEntry result = financialService.update(id, updated);
 
         assertEquals("OUT", result.getType());
         assertEquals(50.0, result.getPrice());
+        assertEquals("04/06/2026", result.getOccurredAt());
         verify(financialRepository).findById(id.toString());
         verify(financialRepository).save(any(FinancialEntry.class));
     }
@@ -98,7 +98,7 @@ class FinancialServiceTest {
         FinancialEntry updated = new FinancialEntry();
         updated.setType("OUT");
         updated.setPrice(50.0);
-        updated.setOccurredAt(OffsetDateTime.now());
+        updated.setOccurredAt("04/06/2026");
 
         assertThrows(IllegalArgumentException.class, () -> financialService.update(id, updated));
     }
@@ -110,6 +110,7 @@ class FinancialServiceTest {
 
         Optional<FinancialEntry> found = financialService.findById(id);
         assertEquals(true, found.isPresent());
+        assertEquals("03/06/2026", found.orElseThrow().getOccurredAt());
     }
 
     @Test
