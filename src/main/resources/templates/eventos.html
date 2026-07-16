@@ -8,12 +8,12 @@
       <section class="hero events-hero" id="events-hero">
         <div class="hero-content">
           <p class="eyebrow">Eventos</p>
-          <h1>Agenda viva, flyers marcantes e notas de palco.</h1>
+          <h1>Encontre a Giramundo na estrada.</h1>
           <p class="hero-description">
-            Esta área funciona como um blog da marca para divulgar eventos, registrar a arte do flyer, publicar um texto de apoio e destacar a data em que cada postagem foi publicada.
+            Acompanhe os eventos e encontros de motociclistas em que a Giramundo estará presente com sua tenda, produtos e muita paixão pelo rock.
           </p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="#eventFeed">Ver publicações</a>
+            <a class="btn btn-primary" href="#eventFeed">Ver agenda</a>
             <a class="btn btn-secondary" href="/loja">Ir para a loja</a>
           </div>
         </div>
@@ -21,8 +21,8 @@
         <div class="hero-card events-hero-card" aria-label="Destaque da aba Eventos">
           <img th:src="@{/img/logo-giramundo.png}" alt="Logo Giramundo em destaque">
           <div>
-            <span>BLOG DE EVENTOS</span>
-            <strong>Flyers, datas e textos de divulgação</strong>
+            <span>GIRAMUNDO NA ESTRADA</span>
+            <strong>Rock, encontros e nossa tenda</strong>
           </div>
         </div>
       </section>
@@ -30,15 +30,15 @@
       <section class="section events-section" id="eventFeed">
         <div class="section-header split">
           <div>
-            <p class="eyebrow">Publicações</p>
-            <h2>Últimos eventos publicados</h2>
+            <p class="eyebrow">Agenda</p>
+            <h2>Eventos com presença da Giramundo</h2>
           </div>
           <div class="events-tools">
             <label class="search-field events-search">
-              <span class="search-field-label">Pesquisar notícias</span>
-              <input type="search" id="eventsSearch" placeholder="Busque por título, texto ou data">
+              <span class="search-field-label">Pesquisar eventos</span>
+              <input type="search" id="eventsSearch" placeholder="Busque por título, descrição ou data">
             </label>
-            <p class="section-note">Use a busca para encontrar publicações rapidamente.</p>
+            <p class="section-note">Use a busca para encontrar um evento na nossa agenda.</p>
           </div>
         </div>
 
@@ -57,7 +57,7 @@
               </div>
               <h3 th:text="${item.title}">Título do evento</h3>
               <p th:text="${item.description}">Descrição do evento.</p>
-              <span class="event-link-hint">Abrir publicação</span>
+              <span class="event-link-hint">Ver detalhes do evento</span>
             </div>
           </a>
         </div>
@@ -65,7 +65,7 @@
         <div class="events-pagination" id="eventsPagination" aria-label="Paginação de eventos"></div>
 
         <div class="events-empty" id="eventsEmpty" hidden>
-          Nenhuma notícia encontrada para a pesquisa atual.
+          Nenhum evento encontrado para esta pesquisa.
         </div>
       </section>
     </main>
