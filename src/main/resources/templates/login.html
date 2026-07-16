@@ -12,33 +12,33 @@
             <span>Giramundo</span>
           </a>
 
-          <p class="eyebrow">Acesso restrito</p>
-          <h1>Painel com a força da marca e a agilidade do seu estoque.</h1>
+          <p class="eyebrow">Área do proprietário</p>
+          <h1>Sua loja, seus produtos e sua operação em um só lugar.</h1>
           <p class="auth-copy">
-            Entre para administrar produtos, fluxo financeiro e conteúdo da loja em uma interface alinhada ao visual do site.
+            Acesse o painel para cuidar da Giramundo e manter as informações da loja sempre organizadas.
           </p>
 
           <div class="auth-points">
             <article>
-              <strong>Cadastro</strong>
+              <strong>Catálogo</strong>
               <span>Gerencie produtos, imagens e preços.</span>
             </article>
             <article>
-              <strong>Operação</strong>
-              <span>Organize entradas e saídas financeiras.</span>
+              <strong>Financeiro</strong>
+              <span>Acompanhe entradas e saídas da loja.</span>
             </article>
             <article>
-              <strong>Segurança</strong>
-              <span>Acesso autenticado pelo Spring Security.</span>
+              <strong>Conteúdo</strong>
+              <span>Mantenha produtos e eventos sempre atualizados.</span>
             </article>
           </div>
         </section>
 
         <section class="auth-card" aria-label="Formulário de login">
           <div class="auth-card-header">
-            <p class="eyebrow">Entrar</p>
-            <h2>Faça login no painel</h2>
-            <p>Use suas credenciais administrativas para continuar.</p>
+            <p class="eyebrow">Acesso administrativo</p>
+            <h2>Entre no painel da Giramundo</h2>
+            <p>Use suas credenciais para continuar.</p>
           </div>
 
           <div class="auth-alert auth-alert-error" th:if="${param.error}">
@@ -54,7 +54,7 @@
 
             <label>
               Usuário
-              <input type="text" name="username" autocomplete="username" placeholder="admin" required>
+              <input type="text" name="username" autocomplete="username" placeholder="Digite seu usuário" required>
             </label>
 
             <label>
@@ -66,7 +66,7 @@
           </form>
 
           <p class="auth-footer-note">
-            Após o acesso, você será redirecionado para o painel administrativo.
+            Acesso exclusivo do proprietário da Giramundo.
           </p>
         </section>
       </section>
