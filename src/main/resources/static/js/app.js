@@ -328,6 +328,10 @@ function addToCart(productId) {
     openCart();
 }
 
+function saveCart() {
+    localStorage.setItem("giramundo_cart", JSON.stringify(state.cart));
+}
+
 function updateQuantity(productId, operation) {
     const item = state.cart.find(cartItem => String(cartItem.id) === String(productId));
     if (!item) return;
