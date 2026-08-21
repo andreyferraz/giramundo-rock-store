@@ -786,6 +786,10 @@ code {
     margin: 0;
 }
 
+.cart-item h4 {
+    color: #fff;
+}
+
 .cart-item p {
     margin-top: 6px;
     color: var(--muted);
