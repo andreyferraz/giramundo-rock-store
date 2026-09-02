@@ -547,6 +547,21 @@ input {
     flex-direction: column;
 }
 
+.shop-section#loja .product-grid {
+    perspective: 1200px;
+}
+
+.shop-section#loja .product-card {
+    border-color: rgba(201, 151, 58, 0.18);
+    transform-style: preserve-3d;
+    will-change: transform, filter, opacity;
+}
+
+.shop-section#loja .product-media,
+.shop-section#loja .product-body {
+    backface-visibility: hidden;
+}
+
 .event-card {
     overflow: hidden;
     display: flex;

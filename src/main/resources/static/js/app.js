@@ -48,6 +48,8 @@ const productsState = {
     currentPage: 1
 };
 
+let productCardsObserver = null;
+
 const addressFields = [
     "customerName",
     "customerPhone",
@@ -84,6 +86,87 @@ function getProductImageUrl(product) {
     }
 
     return null;
+}
+
+function animateHomeProductCards() {
+    const homeShop = document.querySelector(".shop-section#loja");
+
+    if (!homeShop || !productGrid || !homeShop.contains(productGrid) || !window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+    }
+
+    if (productCardsObserver) {
+        productCardsObserver.disconnect();
+        productCardsObserver = null;
+    }
+
+    const cards = [...productGrid.querySelectorAll(".product-card")];
+    if (!cards.length) return;
+
+    const cardItems = cards.flatMap(card => [
+        card.querySelector(".product-media"),
+        card.querySelector(".product-meta"),
+        card.querySelector("h3"),
+        card.querySelector(".product-body > p"),
+        card.querySelector(".product-footer")
+    ].filter(Boolean));
+
+    window.gsap.set(cards, {
+        autoAlpha: 0,
+        x: -48,
+        rotateY: -20,
+        filter: "blur(14px)",
+        transformPerspective: 1100,
+        transformOrigin: "left center"
+    });
+    window.gsap.set(cardItems, { autoAlpha: 0, y: 18 });
+
+    const reveal = () => {
+        window.gsap.timeline({ defaults: { ease: "power3.out" } })
+            .to(cards, {
+                autoAlpha: 1,
+                x: 0,
+                rotateY: 0,
+                filter: "blur(0px)",
+                duration: 0.78,
+                stagger: 0.11
+            })
+            .to(cardItems, { autoAlpha: 1, y: 0, duration: 0.42, stagger: 0.035 }, "-=0.46")
+            .set(cards, { transformOrigin: "center center" });
+    };
+
+    if ("IntersectionObserver" in window) {
+        productCardsObserver = new IntersectionObserver(entries => {
+            if (!entries[0].isIntersecting) return;
+            reveal();
+            productCardsObserver.disconnect();
+            productCardsObserver = null;
+        }, { threshold: 0.1 });
+
+        productCardsObserver.observe(productGrid);
+    } else {
+        reveal();
+    }
+
+    if (!window.matchMedia("(hover: hover)").matches) return;
+
+    cards.forEach(card => {
+        const media = card.querySelector(".product-media");
+
+        card.addEventListener("mousemove", event => {
+            const bounds = card.getBoundingClientRect();
+            const rotateY = ((event.clientX - bounds.left) / bounds.width - 0.5) * 8;
+            const rotateX = (0.5 - (event.clientY - bounds.top) / bounds.height) * 8;
+
+            window.gsap.to(card, { rotateX, rotateY, y: -6, duration: 0.28, ease: "power2.out", overwrite: "auto" });
+            window.gsap.to(media, { x: rotateY * 0.55, y: rotateX * -0.35, duration: 0.35, ease: "power2.out", overwrite: "auto" });
+        });
+
+        card.addEventListener("mouseleave", () => {
+            window.gsap.to(card, { rotateX: 0, rotateY: 0, y: 0, duration: 0.45, ease: "power3.out", overwrite: "auto" });
+            window.gsap.to(media, { x: 0, y: 0, duration: 0.45, ease: "power3.out", overwrite: "auto" });
+        });
+    });
 }
 
 function renderProducts() {
@@ -141,6 +224,8 @@ function renderProducts() {
         </article>
     `;
     }).join("");
+
+    animateHomeProductCards();
 }
 
 function renderEventsFilter() {
@@ -861,6 +946,41 @@ function setupEventCardsAnimations() {
     });
 }
 
+function setupHomeShopAnimation() {
+    const section = document.querySelector(".shop-section#loja");
+
+    if (!section || !window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+    }
+
+    const headerItems = section.querySelectorAll(".section-header > *");
+    window.gsap.set(headerItems, { autoAlpha: 0, x: -44, clipPath: "inset(0 100% 0 0)" });
+
+    const reveal = () => {
+        window.gsap.to(headerItems, {
+            autoAlpha: 1,
+            x: 0,
+            clipPath: "inset(0 0% 0 0)",
+            duration: 0.75,
+            stagger: 0.14,
+            ease: "power3.out"
+        });
+    };
+
+    if (!("IntersectionObserver" in window)) {
+        reveal();
+        return;
+    }
+
+    const observer = new IntersectionObserver(entries => {
+        if (!entries[0].isIntersecting) return;
+        reveal();
+        observer.disconnect();
+    }, { threshold: 0.12 });
+
+    observer.observe(section);
+}
+
 function init() {
     setupFooter();
     bindGlobalCartControls();
@@ -884,6 +1004,7 @@ function init() {
     loadProducts();
     renderEventsFilter();
     setupEventCardsAnimations();
+    setupHomeShopAnimation();
 
     window.addEventListener("hashchange", updateActiveNavLink);
     window.addEventListener("popstate", updateActiveNavLink);
