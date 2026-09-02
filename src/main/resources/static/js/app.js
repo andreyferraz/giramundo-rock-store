@@ -653,38 +653,44 @@ function setupHeroAnimations() {
     }
 }
 
-function setupLatestEventsAnimations() {
-    const section = document.querySelector(".latest-events-section");
+function setupEventCardsAnimations() {
+    const sections = document.querySelectorAll(".latest-events-section, .events-section");
 
-    if (!section || !window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!sections.length || !window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         return;
     }
 
-    const headerItems = section.querySelectorAll(".latest-events-header > *");
-    const cards = section.querySelectorAll(".latest-event-card");
+    sections.forEach(section => {
+        const headerSelector = section.classList.contains("latest-events-section")
+            ? ".latest-events-header > *"
+            : ".section-header > *";
+        const headerItems = section.querySelectorAll(headerSelector);
+        const cards = [...section.querySelectorAll(".event-card")];
+        const visibleCards = cards.filter(card => !card.classList.contains("is-hidden"));
 
-    window.gsap.set(headerItems, { autoAlpha: 0, y: 24 });
-    window.gsap.set(cards, { autoAlpha: 0, y: 72, rotateX: 8, transformPerspective: 900 });
+        window.gsap.set(headerItems, { autoAlpha: 0, y: 24 });
+        window.gsap.set(visibleCards, { autoAlpha: 0, y: 72, rotateX: 8, transformPerspective: 900 });
 
-    const reveal = () => {
-        window.gsap.timeline({ defaults: { ease: "power3.out" } })
-            .to(headerItems, { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.08 })
-            .to(cards, { autoAlpha: 1, y: 0, rotateX: 0, duration: 0.8, stagger: 0.15 }, "-=0.25");
-    };
+        const reveal = () => {
+            window.gsap.timeline({ defaults: { ease: "power3.out" } })
+                .to(headerItems, { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.08 })
+                .to(visibleCards, { autoAlpha: 1, y: 0, rotateX: 0, duration: 0.8, stagger: 0.15 }, "-=0.25");
+        };
 
-    if ("IntersectionObserver" in window) {
-        const observer = new IntersectionObserver(entries => {
-            if (!entries[0].isIntersecting) return;
+        if ("IntersectionObserver" in window) {
+            const observer = new IntersectionObserver(entries => {
+                if (!entries[0].isIntersecting) return;
+                reveal();
+                observer.disconnect();
+            }, { threshold: 0.18 });
+
+            observer.observe(section);
+        } else {
             reveal();
-            observer.disconnect();
-        }, { threshold: 0.18 });
+        }
 
-        observer.observe(section);
-    } else {
-        reveal();
-    }
+        if (!window.matchMedia("(hover: hover)").matches) return;
 
-    if (window.matchMedia("(hover: hover)").matches) {
         cards.forEach(card => {
             const image = card.querySelector(".event-media img");
 
@@ -698,7 +704,7 @@ function setupLatestEventsAnimations() {
                 window.gsap.to(image, { scale: 1, duration: 0.6, ease: "power2.out" });
             });
         });
-    }
+    });
 }
 
 function init() {
@@ -714,7 +720,6 @@ function init() {
     updateActiveNavLink();
     setupEventSharing();
     setupHeroAnimations();
-    setupLatestEventsAnimations();
 
     if (displayWhatsapp) {
         displayWhatsapp.textContent = CONFIG.whatsappNumber;
@@ -722,6 +727,7 @@ function init() {
 
     loadProducts();
     renderEventsFilter();
+    setupEventCardsAnimations();
 
     window.addEventListener("hashchange", updateActiveNavLink);
     window.addEventListener("popstate", updateActiveNavLink);
