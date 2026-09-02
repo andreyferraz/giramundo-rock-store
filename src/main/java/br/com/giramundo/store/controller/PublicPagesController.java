@@ -18,7 +18,8 @@ public class PublicPagesController {
     }
 
     @GetMapping({"/", "/home"})
-    public String store() {
+    public String store(Model model) {
+        model.addAttribute("recentEvents", eventService.findLatest(3));
         return "index";
     }
 

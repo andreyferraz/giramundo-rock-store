@@ -2,8 +2,11 @@ package br.com.giramundo.store.service;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,6 +79,21 @@ public class EventService {
 
     public Iterable<Event> findAll() {
         return eventRepository.findAll();
+    }
+
+    public List<Event> findLatest(int limit) {
+        return StreamSupport.stream(eventRepository.findAll().spliterator(), false)
+                .sorted(Comparator.comparing(EventService::publishedAt).reversed())
+                .limit(limit)
+                .toList();
+    }
+
+    private static OffsetDateTime publishedAt(Event event) {
+        try {
+            return OffsetDateTime.parse(event.getPublishedAt());
+        } catch (RuntimeException exception) {
+            return OffsetDateTime.MIN;
+        }
     }
 
     public void delete(String id) {

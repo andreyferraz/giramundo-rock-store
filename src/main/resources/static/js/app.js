@@ -653,6 +653,54 @@ function setupHeroAnimations() {
     }
 }
 
+function setupLatestEventsAnimations() {
+    const section = document.querySelector(".latest-events-section");
+
+    if (!section || !window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+    }
+
+    const headerItems = section.querySelectorAll(".latest-events-header > *");
+    const cards = section.querySelectorAll(".latest-event-card");
+
+    window.gsap.set(headerItems, { autoAlpha: 0, y: 24 });
+    window.gsap.set(cards, { autoAlpha: 0, y: 72, rotateX: 8, transformPerspective: 900 });
+
+    const reveal = () => {
+        window.gsap.timeline({ defaults: { ease: "power3.out" } })
+            .to(headerItems, { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.08 })
+            .to(cards, { autoAlpha: 1, y: 0, rotateX: 0, duration: 0.8, stagger: 0.15 }, "-=0.25");
+    };
+
+    if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(entries => {
+            if (!entries[0].isIntersecting) return;
+            reveal();
+            observer.disconnect();
+        }, { threshold: 0.18 });
+
+        observer.observe(section);
+    } else {
+        reveal();
+    }
+
+    if (window.matchMedia("(hover: hover)").matches) {
+        cards.forEach(card => {
+            const image = card.querySelector(".event-media img");
+
+            card.addEventListener("mouseenter", () => {
+                window.gsap.to(card, { y: -8, duration: 0.35, ease: "power2.out" });
+                window.gsap.to(image, { scale: 1.07, duration: 0.6, ease: "power2.out" });
+            });
+
+            card.addEventListener("mouseleave", () => {
+                window.gsap.to(card, { y: 0, duration: 0.35, ease: "power2.out" });
+                window.gsap.to(image, { scale: 1, duration: 0.6, ease: "power2.out" });
+            });
+        });
+    }
+}
+
 function init() {
     setupFooter();
     bindGlobalCartControls();
@@ -666,6 +714,7 @@ function init() {
     updateActiveNavLink();
     setupEventSharing();
     setupHeroAnimations();
+    setupLatestEventsAnimations();
 
     if (displayWhatsapp) {
         displayWhatsapp.textContent = CONFIG.whatsappNumber;

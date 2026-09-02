@@ -8,11 +8,8 @@
     <main>
         <section class="hero hero--storefront" id="home">
             <div class="hero-content">
-                <p class="eyebrow">Rock • estilo • liberdade</p>
-                <h1>Rock para acompanhar o seu caminho.</h1>
-                <p class="hero-description">
-                    Descubra camisas e acessórios que combinam música, personalidade e liberdade — para o dia a dia, a estrada e os bons encontros.
-                </p>
+                <p class="eyebrow">Rock • trabalho • liberdade</p>
+                <h1>Qualidade em movimento,ousadia em ação.</h1>
                 <div class="hero-actions">
                     <a class="btn btn-primary" href="#loja">Ver produtos</a>
                     <a class="btn btn-secondary" href="#sobre">Conhecer a marca</a>
@@ -20,24 +17,43 @@
             </div>
         </section>
 
-        <section class="section about-section" id="sobre">
-            <div class="section-header">
-                <p class="eyebrow">Sobre</p>
-                <h2>Rock, estrada e atitude fazem parte da nossa história.</h2>
+        <section class="section about-section latest-events-section" id="sobre">
+            <div class="section-header split latest-events-header">
+                <div>
+                    <p class="eyebrow">Na estrada</p>
+                    <h2>Os próximos encontros da Giramundo</h2>
+                </div>
+                <a class="btn btn-secondary" href="/eventos">Ver agenda completa</a>
             </div>
-            <div class="about-grid">
-                <article class="about-card">
-                    <h3>Nossa paixão</h3>
-                    <p>Selecionamos camisas e acessórios para quem encontra no rock mais que um estilo musical: um jeito autêntico de viver.</p>
-                </article>
-                <article class="about-card">
-                    <h3>Na estrada</h3>
-                    <p>Levamos a tenda da Giramundo a eventos e encontros de motociclistas, compartilhando boa música, histórias e paixão por duas rodas.</p>
-                </article>
-                <article class="about-card">
-                    <h3>Onde você estiver</h3>
-                    <p>Encontre nossos produtos nos eventos ou escolha seus favoritos pela loja virtual e faça seu pedido de forma simples.</p>
-                </article>
+
+            <div class="events-grid latest-events-grid" th:if="${!#lists.isEmpty(recentEvents)}">
+                <a class="event-card event-card-link latest-event-card"
+                   th:each="item : ${recentEvents}"
+                   th:href="@{'/eventos/' + ${item.id}}">
+                    <div class="event-media">
+                        <img th:if="${item.image != null and !#strings.isEmpty(item.image)}"
+                             th:src="@{'/uploads/' + ${item.image}}"
+                             th:alt="|Flyer de ${item.title}|">
+                        <img th:unless="${item.image != null and !#strings.isEmpty(item.image)}"
+                             th:src="@{/img/logo-giramundo.png}"
+                             th:alt="|Evento ${item.title}|">
+                    </div>
+                    <div class="event-body">
+                        <div class="event-meta">
+                            <time th:if="${item.publishedAt != null}"
+                                  th:datetime="${item.publishedAt}"
+                                  th:text="|Publicado em ${#temporals.format(T(java.time.OffsetDateTime).parse(item.publishedAt), 'dd/MM/yyyy')}|">Publicado em</time>
+                            <span class="event-tag">Evento</span>
+                        </div>
+                        <h3 th:text="${item.title}">Título do evento</h3>
+                        <p th:text="${item.description}">Descrição do evento.</p>
+                        <span class="event-link-hint">Ver detalhes do evento</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="events-empty latest-events-empty" th:if="${#lists.isEmpty(recentEvents)}">
+                Novos encontros serão publicados em breve.
             </div>
         </section>
 
