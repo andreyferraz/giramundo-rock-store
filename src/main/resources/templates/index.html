@@ -76,16 +76,44 @@
         </section>
 
         <section class="section contact-section" id="contato">
-            <div class="contact-card">
-                <div>
-                    <p class="eyebrow">Contato</p>
-                    <h2>Fale com a Giramundo</h2>
-                    <p>Quer conhecer os produtos, tirar dúvidas ou saber mais sobre a Giramundo? Fale com a gente.</p>
+            <div class="contact-cta">
+                <span class="contact-cta-shine" aria-hidden="true"></span>
+
+                <div class="contact-cta-brand">
+                    <div class="contact-cta-logo-wrap">
+                        <span class="contact-cta-orbit" aria-hidden="true"></span>
+                        <img class="contact-cta-logo" th:src="@{/img/logo-giramundo.png}" alt="Logo Giramundo">
+                    </div>
+                    <span class="contact-cta-badge">Giramundo 2008</span>
                 </div>
-                <div class="contact-list">
-                    <p><strong>WhatsApp:</strong> <span id="displayWhatsapp">Fale com a gente</span></p>
-                    <p><strong>E-mail:</strong> contato@giramundo.com.br</p>
-                    <p><strong>Atendimento:</strong> Online e em eventos de motociclistas</p>
+
+                <div class="contact-cta-content">
+                    <p class="eyebrow">Estamos por perto</p>
+                    <h2>Conecte-se com a Giramundo</h2>
+                    <p class="contact-cta-description">Produtos, eventos e atendimento com a energia de quem vive a estrada.</p>
+
+                    <div class="contact-cta-info" aria-label="Resumo dos contatos">
+                        <div class="contact-cta-info-item">
+                            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                            <span><small>WhatsApp</small><strong>(27) 99801-5680</strong></span>
+                        </div>
+                        <div class="contact-cta-info-item">
+                            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                            <span><small>E-mail</small><strong>giramundomoto@yahoo.com.br</strong></span>
+                        </div>
+                        <div class="contact-cta-info-item">
+                            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                            <span><small>Loja física</small><strong>Praia do Morro, Guarapari</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-cta-action">
+                    <button class="btn contact-cta-button" type="button" data-contact-modal-trigger aria-haspopup="dialog" aria-controls="contactModal">
+                        <span>Ver todos os contatos</span>
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </button>
+                    <small>Atendimento online e em eventos</small>
                 </div>
             </div>
         </section>

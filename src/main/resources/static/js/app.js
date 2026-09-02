@@ -893,11 +893,12 @@ function setupEventImageLightbox() {
 }
 
 function setupContactModal() {
-    const openButton = document.getElementById("openContactModal");
+    const openButtons = [...document.querySelectorAll("[data-contact-modal-trigger]")];
+    const menuButton = document.getElementById("openContactModal");
     const modal = document.getElementById("contactModal");
     const closeButton = document.getElementById("closeContactModal");
 
-    if (!openButton || !modal || !closeButton || typeof modal.showModal !== "function") {
+    if (!openButtons.length || !modal || !closeButton || typeof modal.showModal !== "function") {
         return;
     }
 
@@ -906,6 +907,7 @@ function setupContactModal() {
     const options = modal.querySelectorAll(".contact-modal-option");
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let isClosing = false;
+    let lastTrigger = openButtons[0];
 
     const finishClose = () => {
         modal.close();
@@ -916,7 +918,7 @@ function setupContactModal() {
             window.gsap.set([modal, panel, closeButton, ...headerItems, ...options], { clearProps: "all" });
         }
 
-        openButton.focus();
+        lastTrigger.focus();
     };
 
     const closeModal = () => {
@@ -935,30 +937,33 @@ function setupContactModal() {
             .to(modal, { autoAlpha: 0, duration: 0.18 }, "-=0.14");
     };
 
-    openButton.addEventListener("click", () => {
-        modal.showModal();
-        document.body.classList.add("contact-modal-open");
+    openButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            lastTrigger = button;
+            modal.showModal();
+            document.body.classList.add("contact-modal-open");
 
-        if (!window.gsap || reduceMotion) return;
+            if (!window.gsap || reduceMotion) return;
 
-        window.gsap.timeline({ defaults: { ease: "power3.out" } })
-            .fromTo(modal, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2 })
-            .fromTo(panel,
-                { autoAlpha: 0, y: 54, scale: 0.88, rotateX: -9, transformPerspective: 1000 },
-                { autoAlpha: 1, y: 0, scale: 1, rotateX: 0, duration: 0.55 },
-                "-=0.08")
-            .fromTo(closeButton,
-                { autoAlpha: 0, scale: 0.5, rotate: -70 },
-                { autoAlpha: 1, scale: 1, rotate: 0, duration: 0.38 },
-                "-=0.24")
-            .fromTo(headerItems,
-                { autoAlpha: 0, y: 26 },
-                { autoAlpha: 1, y: 0, duration: 0.46, stagger: 0.08 },
-                "-=0.28")
-            .fromTo(options,
-                { autoAlpha: 0, x: index => index % 2 === 0 ? -48 : 48, rotateY: index => index % 2 === 0 ? -7 : 7 },
-                { autoAlpha: 1, x: 0, rotateY: 0, duration: 0.5, stagger: 0.09 },
-                "-=0.24");
+            window.gsap.timeline({ defaults: { ease: "power3.out" } })
+                .fromTo(modal, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2 })
+                .fromTo(panel,
+                    { autoAlpha: 0, y: 54, scale: 0.88, rotateX: -9, transformPerspective: 1000 },
+                    { autoAlpha: 1, y: 0, scale: 1, rotateX: 0, duration: 0.55 },
+                    "-=0.08")
+                .fromTo(closeButton,
+                    { autoAlpha: 0, scale: 0.5, rotate: -70 },
+                    { autoAlpha: 1, scale: 1, rotate: 0, duration: 0.38 },
+                    "-=0.24")
+                .fromTo(headerItems,
+                    { autoAlpha: 0, y: 26 },
+                    { autoAlpha: 1, y: 0, duration: 0.46, stagger: 0.08 },
+                    "-=0.28")
+                .fromTo(options,
+                    { autoAlpha: 0, x: index => index % 2 === 0 ? -48 : 48, rotateY: index => index % 2 === 0 ? -7 : 7 },
+                    { autoAlpha: 1, x: 0, rotateY: 0, duration: 0.5, stagger: 0.09 },
+                    "-=0.24");
+        });
     });
 
     closeButton.addEventListener("click", closeModal);
@@ -977,15 +982,17 @@ function setupContactModal() {
     });
 
     if (window.gsap && !reduceMotion && window.matchMedia("(hover: hover)").matches) {
-        const menuIcon = openButton.querySelector("i");
+        const menuIcon = menuButton?.querySelector("i");
 
-        openButton.addEventListener("mouseenter", () => {
-            window.gsap.to(menuIcon, { y: -2, rotate: -10, scale: 1.12, duration: 0.25 });
-        });
+        if (menuButton && menuIcon) {
+            menuButton.addEventListener("mouseenter", () => {
+                window.gsap.to(menuIcon, { y: -2, rotate: -10, scale: 1.12, duration: 0.25 });
+            });
 
-        openButton.addEventListener("mouseleave", () => {
-            window.gsap.to(menuIcon, { y: 0, rotate: 0, scale: 1, duration: 0.25 });
-        });
+            menuButton.addEventListener("mouseleave", () => {
+                window.gsap.to(menuIcon, { y: 0, rotate: 0, scale: 1, duration: 0.25 });
+            });
+        }
 
         options.forEach(option => {
             const icon = option.querySelector(".contact-option-icon");
@@ -1090,6 +1097,87 @@ function setupShopSectionAnimation() {
     observer.observe(section);
 }
 
+function setupContactCtaAnimation() {
+    const cta = document.querySelector(".contact-cta");
+
+    if (!cta || !window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+    }
+
+    const logoWrap = cta.querySelector(".contact-cta-logo-wrap");
+    const orbit = cta.querySelector(".contact-cta-orbit");
+    const badge = cta.querySelector(".contact-cta-badge");
+    const contentItems = cta.querySelectorAll(".contact-cta-content > :not(.contact-cta-info)");
+    const infoItems = cta.querySelectorAll(".contact-cta-info-item");
+    const action = cta.querySelector(".contact-cta-action");
+    const button = cta.querySelector(".contact-cta-button");
+    const buttonIcon = button?.querySelector("i");
+    const shine = cta.querySelector(".contact-cta-shine");
+
+    const reveal = () => {
+        window.gsap.timeline({ defaults: { ease: "power3.out" } })
+            .fromTo(cta,
+                { autoAlpha: 0, y: 58, clipPath: "inset(12% 4% 12% 4% round 32px)" },
+                { autoAlpha: 1, y: 0, clipPath: "inset(0% 0% 0% 0% round 32px)", duration: 0.75 })
+            .fromTo(logoWrap,
+                { autoAlpha: 0, scale: 0.3, rotate: -18, clipPath: "circle(0% at 50% 50%)" },
+                { autoAlpha: 1, scale: 1, rotate: 0, clipPath: "circle(75% at 50% 50%)", duration: 0.75, ease: "back.out(1.7)" },
+                "-=0.42")
+            .fromTo(badge,
+                { autoAlpha: 0, letterSpacing: "0.5em", y: 10 },
+                { autoAlpha: 1, letterSpacing: "0.16em", y: 0, duration: 0.45 },
+                "-=0.28")
+            .fromTo(contentItems,
+                { autoAlpha: 0, x: -38, skewX: -4 },
+                { autoAlpha: 1, x: 0, skewX: 0, duration: 0.55, stagger: 0.1 },
+                "-=0.55")
+            .fromTo(infoItems,
+                { autoAlpha: 0, y: 30, rotateX: -35, transformPerspective: 700 },
+                { autoAlpha: 1, y: 0, rotateX: 0, duration: 0.5, stagger: 0.09 },
+                "-=0.3")
+            .fromTo(action,
+                { autoAlpha: 0, scale: 0.78, x: 28 },
+                { autoAlpha: 1, scale: 1, x: 0, duration: 0.55, ease: "back.out(1.5)" },
+                "-=0.45")
+            .fromTo(shine,
+                { autoAlpha: 0, xPercent: -120 },
+                { autoAlpha: 1, xPercent: 760, duration: 1.05, ease: "power2.inOut" },
+                "-=0.78")
+            .to(shine, { autoAlpha: 0, duration: 0.18 });
+
+        window.gsap.to(orbit, { rotate: 360, duration: 16, repeat: -1, ease: "none" });
+    };
+
+    if (window.matchMedia("(hover: hover)").matches && button) {
+        button.addEventListener("mousemove", event => {
+            const bounds = button.getBoundingClientRect();
+            const x = (event.clientX - bounds.left - bounds.width / 2) * 0.13;
+            const y = (event.clientY - bounds.top - bounds.height / 2) * 0.18;
+
+            window.gsap.to(button, { x, y, scale: 1.035, duration: 0.25, ease: "power2.out", overwrite: true });
+            window.gsap.to(buttonIcon, { x: 5, duration: 0.25, ease: "power2.out" });
+        });
+
+        button.addEventListener("mouseleave", () => {
+            window.gsap.to(button, { x: 0, y: 0, scale: 1, duration: 0.45, ease: "elastic.out(1, 0.45)" });
+            window.gsap.to(buttonIcon, { x: 0, duration: 0.3 });
+        });
+    }
+
+    if (!("IntersectionObserver" in window)) {
+        reveal();
+        return;
+    }
+
+    const observer = new IntersectionObserver(entries => {
+        if (!entries[0].isIntersecting) return;
+        reveal();
+        observer.disconnect();
+    }, { threshold: 0.2 });
+
+    observer.observe(cta);
+}
+
 function init() {
     setupFooter();
     bindGlobalCartControls();
@@ -1115,6 +1203,7 @@ function init() {
     renderEventsFilter();
     setupEventCardsAnimations();
     setupShopSectionAnimation();
+    setupContactCtaAnimation();
 
     window.addEventListener("hashchange", updateActiveNavLink);
     window.addEventListener("popstate", updateActiveNavLink);
