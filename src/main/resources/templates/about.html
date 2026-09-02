@@ -5,62 +5,139 @@
     </head>
   <div th:fragment="content">
 
-    <main>
+    <main class="about-page">
         <section class="hero hero--about" id="about-hero">
             <div class="hero-content">
                 <p class="eyebrow">Sobre a Giramundo</p>
                 <h1>Acessórios pra motociclistas e simpatizantes.</h1>
                 <div class="hero-actions">
-                    <a class="btn btn-primary" href="/#loja">Ver produtos</a>
-                    <a class="btn btn-secondary" href="/#contato">Falar com a marca</a>
+                    <a class="btn btn-primary" href="/loja">Ver produtos</a>
+                    <a class="btn btn-secondary" href="#historia">Conhecer a história</a>
                 </div>
             </div>
         </section>
 
-        <section class="section about-section" id="historia">
-            <div class="section-header">
-                <p class="eyebrow">História</p>
-                <h2>Uma marca criada para ter voz, ritmo e direção.</h2>
+        <section class="section about-page-section about-story-section" id="historia">
+            <div class="about-story-copy">
+                <p class="eyebrow">Nossa história</p>
+                <h2>Uma trajetória movida por estrada, rock e encontros.</h2>
+                <p>A Giramundo nasceu em Guarapari, em 2008, a partir da vontade de criar uma marca que representasse a liberdade de quem vive a cultura motociclista.</p>
+                <p>O que começou com uma pequena seleção de produtos levada a encontros e eventos ganhou estrada, conquistou amizades e se transformou em um ponto de conexão para motociclistas e simpatizantes.</p>
             </div>
 
-            <div class="about-grid">
-                <article class="about-card">
-                    <h3>Origem</h3>
-                    <p>O Gira Mundo foi pensado como uma marca que carrega movimento no nome e atitude na entrega, sem abrir mão de clareza visual.</p>
-                </article>
-                <article class="about-card">
-                    <h3>Identidade</h3>
-                    <p>Camisas e acessórios traduzem a paixão pelo rock e acompanham quem expressa sua personalidade dentro e fora da estrada.</p>
-                </article>
-                <article class="about-card">
-                    <h3>Experiência</h3>
-                    <p>A tenda da Giramundo está presente em eventos e encontros de motociclistas, levando produtos e proximidade para quem compartilha essa paixão.</p>
-                </article>
+            <div class="about-story-timeline" aria-label="Linha do tempo da Giramundo">
+                <span class="about-story-year" data-year="2008">2008</span>
+                <div class="about-story-line" aria-hidden="true"></div>
+                <div class="about-story-milestones">
+                    <div class="about-story-milestone">
+                        <i class="fa-solid fa-seedling" aria-hidden="true"></i>
+                        <span><strong>O começo</strong><small>A marca ganha vida em Guarapari.</small></span>
+                    </div>
+                    <div class="about-story-milestone">
+                        <i class="fa-solid fa-motorcycle" aria-hidden="true"></i>
+                        <span><strong>Na estrada</strong><small>Presença em encontros e eventos.</small></span>
+                    </div>
+                    <div class="about-story-milestone">
+                        <i class="fa-solid fa-flag-checkered" aria-hidden="true"></i>
+                        <span><strong>Hoje</strong><small>Loja, produção e comunidade.</small></span>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <section class="section" id="proposta">
-            <div class="section-header split">
-                <div>
-                    <p class="eyebrow">Proposta</p>
-                    <h2>Da tenda nos eventos à loja virtual, o rock nos conecta.</h2>
-                </div>
-                <p class="section-note">Encontre a Giramundo na estrada ou escolha seus produtos favoritos pela loja virtual.</p>
+        <section class="section about-page-section embroidery-section" id="bordados">
+            <div class="embroidery-visual" aria-hidden="true">
+                <span class="embroidery-hoop"></span>
+                <svg class="embroidery-thread-art" viewBox="0 0 520 320">
+                    <path class="embroidery-thread" d="M38 228 C105 58 188 298 268 126 S420 76 486 218" />
+                    <g class="embroidery-needle">
+                        <line x1="458" y1="176" x2="500" y2="120" />
+                        <ellipse cx="497" cy="123" rx="4" ry="10" transform="rotate(38 497 123)" />
+                    </g>
+                </svg>
+                <span class="embroidery-word">Feito para durar</span>
             </div>
 
-            <div class="about-grid">
-                <article class="about-card">
-                    <h3>Produtos</h3>
-                    <p>Camisas e acessórios para completar o estilo de quem carrega o rock no dia a dia.</p>
-                </article>
-                <article class="about-card">
-                    <h3>Conexão</h3>
-                    <p>Nos eventos, a Giramundo se aproxima do público, compartilha histórias e celebra a cultura motociclista.</p>
-                </article>
-                <article class="about-card">
-                    <h3>Na estrada</h3>
-                    <p>Entre encontros de motociclistas e a loja virtual, nossos produtos chegam a quem vive com atitude e liberdade.</p>
-                </article>
+            <div class="embroidery-copy">
+                <p class="eyebrow">Produção de bordados</p>
+                <h2>Detalhes que transformam cada peça.</h2>
+                <p>Nossa produção de bordados combina cuidado, personalidade e acabamento resistente para criar peças que carregam identidade em cada ponto.</p>
+                <p>Desenvolvemos trabalhos para roupas, acessórios e projetos personalizados, do desenho à finalização.</p>
+                <a class="btn btn-primary embroidery-button" href="/bordados">
+                    <span>Conhecer nossos bordados</span>
+                    <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                </a>
+            </div>
+        </section>
+
+        <section class="section about-page-section physical-store-section" id="loja-fisica">
+            <div class="physical-store-copy">
+                <p class="eyebrow">Loja física</p>
+                <h2>Um ponto de encontro em Guarapari.</h2>
+                <p>Visite a Giramundo na Praia do Morro, conheça os produtos de perto e encontre peças que combinam com sua história.</p>
+
+                <div class="physical-store-details">
+                    <div class="physical-store-detail">
+                        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                        <span><small>Endereço</small><strong>Rua João Batista Piumbini, 369<br>Praia do Morro, Guarapari</strong></span>
+                    </div>
+                    <div class="physical-store-detail">
+                        <i class="fa-solid fa-handshake" aria-hidden="true"></i>
+                        <span><small>Atendimento</small><strong>Loja física, online e em eventos</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="physical-store-visual" aria-hidden="true">
+                <span class="physical-store-pulse"></span>
+                <div class="physical-store-front">
+                    <span class="physical-store-sign">Giramundo</span>
+                    <i class="fa-solid fa-store"></i>
+                    <small>Praia do Morro</small>
+                </div>
+            </div>
+        </section>
+
+        <section class="section contact-section" id="contato">
+            <div class="contact-cta">
+                <span class="contact-cta-shine" aria-hidden="true"></span>
+
+                <div class="contact-cta-brand">
+                    <div class="contact-cta-logo-wrap">
+                        <span class="contact-cta-orbit" aria-hidden="true"></span>
+                        <img class="contact-cta-logo" th:src="@{/img/logo-giramundo.png}" alt="Logo Giramundo">
+                    </div>
+                    <span class="contact-cta-badge">Giramundo 2008</span>
+                </div>
+
+                <div class="contact-cta-content">
+                    <p class="eyebrow">Estamos por perto</p>
+                    <h2>Conecte-se com a Giramundo</h2>
+                    <p class="contact-cta-description">Produtos, eventos e atendimento com a energia de quem vive a estrada.</p>
+
+                    <div class="contact-cta-info" aria-label="Resumo dos contatos">
+                        <div class="contact-cta-info-item">
+                            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                            <span><small>WhatsApp</small><strong>(27) 99801-5680</strong></span>
+                        </div>
+                        <div class="contact-cta-info-item">
+                            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                            <span><small>E-mail</small><strong>giramundomoto@yahoo.com.br</strong></span>
+                        </div>
+                        <div class="contact-cta-info-item">
+                            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                            <span><small>Loja física</small><strong>Praia do Morro, Guarapari</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-cta-action">
+                    <button class="btn contact-cta-button" type="button" data-contact-modal-trigger aria-haspopup="dialog" aria-controls="contactModal">
+                        <span>Ver todos os contatos</span>
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </button>
+                    <small>Atendimento online e em eventos</small>
+                </div>
             </div>
         </section>
     </main>

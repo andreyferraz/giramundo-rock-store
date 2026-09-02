@@ -1097,6 +1097,145 @@ function setupShopSectionAnimation() {
     observer.observe(section);
 }
 
+function setupAboutPageAnimations() {
+    const page = document.querySelector(".about-page");
+
+    if (!page || !window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+    }
+
+    const observeOnce = (element, reveal, threshold = 0.2) => {
+        if (!element) return;
+
+        if (!("IntersectionObserver" in window)) {
+            reveal();
+            return;
+        }
+
+        const observer = new IntersectionObserver(entries => {
+            if (!entries[0].isIntersecting) return;
+            reveal();
+            observer.disconnect();
+        }, { threshold });
+
+        observer.observe(element);
+    };
+
+    const story = page.querySelector(".about-story-section");
+    if (story) {
+        const copyItems = story.querySelectorAll(".about-story-copy > *");
+        const timelineCard = story.querySelector(".about-story-timeline");
+        const year = story.querySelector(".about-story-year");
+        const line = story.querySelector(".about-story-line");
+        const milestones = story.querySelectorAll(".about-story-milestone");
+        const targetYear = Number(year.dataset.year);
+
+        observeOnce(story, () => {
+            const yearCounter = { value: 0 };
+
+            window.gsap.timeline({ defaults: { ease: "power3.out" } })
+                .fromTo(copyItems,
+                    { autoAlpha: 0, filter: "blur(14px)", y: 20 },
+                    { autoAlpha: 1, filter: "blur(0px)", y: 0, duration: 0.65, stagger: 0.11 })
+                .fromTo(timelineCard,
+                    { autoAlpha: 0, perspective: 900, rotateZ: 3, scale: 0.94 },
+                    { autoAlpha: 1, rotateZ: 0, scale: 1, duration: 0.65 },
+                    "-=0.42")
+                .to(yearCounter, {
+                    value: targetYear,
+                    duration: 1.25,
+                    ease: "power2.out",
+                    onStart: () => { year.textContent = "0"; },
+                    onUpdate: () => { year.textContent = String(Math.round(yearCounter.value)); }
+                }, "-=0.35")
+                .fromTo(line,
+                    { scaleX: 0 },
+                    { scaleX: 1, duration: 0.85, ease: "expo.inOut" },
+                    "-=0.85")
+                .fromTo(milestones,
+                    { autoAlpha: 0, clipPath: "polygon(0 0, 0 0, 0 100%, 0 100%)" },
+                    { autoAlpha: 1, clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)", duration: 0.52, stagger: 0.12 },
+                    "-=0.36");
+        });
+    }
+
+    const embroidery = page.querySelector(".embroidery-section");
+    if (embroidery) {
+        const visual = embroidery.querySelector(".embroidery-visual");
+        const hoop = embroidery.querySelector(".embroidery-hoop");
+        const thread = embroidery.querySelector(".embroidery-thread");
+        const needle = embroidery.querySelector(".embroidery-needle");
+        const word = embroidery.querySelector(".embroidery-word");
+        const copyItems = embroidery.querySelectorAll(".embroidery-copy > *");
+        const threadLength = thread.getTotalLength();
+
+        observeOnce(embroidery, () => {
+            window.gsap.set(thread, { strokeDasharray: threadLength, strokeDashoffset: threadLength });
+
+            window.gsap.timeline({ defaults: { ease: "power3.out" } })
+                .fromTo(visual,
+                    { autoAlpha: 0, clipPath: "polygon(0 0, 18% 0, 0 18%, 0 100%)" },
+                    { autoAlpha: 1, clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)", duration: 0.9, ease: "expo.out" })
+                .fromTo(hoop,
+                    { scale: 1.3, rotate: 28 },
+                    { scale: 1, rotate: 0, duration: 0.7, ease: "back.out(1.4)" },
+                    "-=0.58")
+                .to(thread,
+                    { strokeDashoffset: 0, duration: 1.45, ease: "sine.inOut" },
+                    "-=0.38")
+                .fromTo(needle,
+                    { autoAlpha: 0, x: -48, y: 38, rotate: -16 },
+                    { autoAlpha: 1, x: 0, y: 0, rotate: 0, duration: 1.05, ease: "power2.inOut" },
+                    "-=1.32")
+                .fromTo(word,
+                    { autoAlpha: 0, scaleX: 0, transformOrigin: "center" },
+                    { autoAlpha: 1, scaleX: 1, duration: 0.48, ease: "back.out(1.8)" },
+                    "-=0.18")
+                .fromTo(copyItems,
+                    { autoAlpha: 0, xPercent: 12, skewY: 3 },
+                    { autoAlpha: 1, xPercent: 0, skewY: 0, duration: 0.58, stagger: 0.1 },
+                    "-=1.18");
+        });
+    }
+
+    const store = page.querySelector(".physical-store-section");
+    if (store) {
+        const copyItems = store.querySelectorAll(".physical-store-copy > :not(.physical-store-details)");
+        const details = store.querySelectorAll(".physical-store-detail");
+        const visual = store.querySelector(".physical-store-visual");
+        const pulse = store.querySelector(".physical-store-pulse");
+        const storefront = store.querySelector(".physical-store-front");
+        const sign = store.querySelector(".physical-store-sign");
+
+        observeOnce(store, () => {
+            window.gsap.timeline({ defaults: { ease: "power3.out" } })
+                .fromTo(copyItems,
+                    { autoAlpha: 0, yPercent: 45, scaleY: 0.72, transformOrigin: "bottom" },
+                    { autoAlpha: 1, yPercent: 0, scaleY: 1, duration: 0.62, stagger: 0.11 })
+                .fromTo(details,
+                    { autoAlpha: 0, scaleY: 0.08, rotateX: -30, transformOrigin: "top center" },
+                    { autoAlpha: 1, scaleY: 1, rotateX: 0, duration: 0.58, stagger: 0.16, ease: "back.out(1.5)" },
+                    "-=0.3")
+                .fromTo(visual,
+                    { autoAlpha: 0 },
+                    { autoAlpha: 1, duration: 0.25 },
+                    "-=0.72")
+                .fromTo(storefront,
+                    { scaleX: 0.08, rotateY: -42, transformPerspective: 900 },
+                    { scaleX: 1, rotateY: 0, duration: 0.85, ease: "expo.out" },
+                    "-=0.18")
+                .fromTo(sign,
+                    { rotateX: -90 },
+                    { rotateX: 0, duration: 0.72, ease: "bounce.out" },
+                    "-=0.3");
+
+            window.gsap.fromTo(pulse,
+                { scale: 0.55, autoAlpha: 0.85 },
+                { scale: 1.28, autoAlpha: 0, duration: 1.8, repeat: 2, ease: "power1.out" });
+        });
+    }
+}
+
 function setupContactCtaAnimation() {
     const cta = document.querySelector(".contact-cta");
 
@@ -1203,6 +1342,7 @@ function init() {
     renderEventsFilter();
     setupEventCardsAnimations();
     setupShopSectionAnimation();
+    setupAboutPageAnimations();
     setupContactCtaAnimation();
 
     window.addEventListener("hashchange", updateActiveNavLink);
