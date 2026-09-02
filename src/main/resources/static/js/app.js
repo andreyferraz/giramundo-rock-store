@@ -632,6 +632,27 @@ async function loadProducts() {
     updateActiveNavLink();
 }
 
+function setupHeroAnimations() {
+    const hero = document.querySelector(".hero");
+
+    if (!hero || !window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+    }
+
+    const heroTimeline = window.gsap.timeline({ defaults: { ease: "power3.out" } });
+
+    heroTimeline
+        .from(hero.querySelector(".eyebrow"), { autoAlpha: 0, y: 16, duration: 0.5 })
+        .from(hero.querySelector("h1"), { autoAlpha: 0, y: 42, skewY: 2, duration: 0.9 }, "-=0.2")
+        .from(hero.querySelector(".hero-description"), { autoAlpha: 0, y: 24, duration: 0.65 }, "-=0.45")
+        .from(hero.querySelectorAll(".hero-actions .btn"), { autoAlpha: 0, y: 16, duration: 0.45, stagger: 0.12 }, "-=0.35");
+
+    const heroCard = hero.querySelector(".hero-card");
+    if (heroCard) {
+        heroTimeline.from(heroCard, { autoAlpha: 0, x: 32, duration: 0.7 }, "-=0.55");
+    }
+}
+
 function init() {
     setupFooter();
     bindGlobalCartControls();
@@ -644,6 +665,7 @@ function init() {
 
     updateActiveNavLink();
     setupEventSharing();
+    setupHeroAnimations();
 
     if (displayWhatsapp) {
         displayWhatsapp.textContent = CONFIG.whatsappNumber;
