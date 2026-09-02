@@ -266,11 +266,13 @@ function setupEventSharing() {
 
     if (copyEventLinkBtn) {
         copyEventLinkBtn.addEventListener("click", async () => {
+            const copyLabel = copyEventLinkBtn.querySelector("[data-copy-label]");
+
             try {
                 await navigator.clipboard.writeText(data.url);
-                copyEventLinkBtn.textContent = "Link copiado";
+                if (copyLabel) copyLabel.textContent = "Link copiado";
                 setTimeout(() => {
-                    copyEventLinkBtn.textContent = "Copiar link";
+                    if (copyLabel) copyLabel.textContent = "Copiar link";
                 }, 1800);
             } catch (error) {
                 window.prompt("Copie o link da publicação", data.url);
@@ -653,6 +655,158 @@ function setupHeroAnimations() {
     }
 }
 
+function setupEventDetailAnimations() {
+    const page = document.querySelector(".event-detail-page");
+
+    if (!page || !window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+    }
+
+    const intro = page.querySelector(".event-detail-intro");
+    const backLink = intro.querySelector(".event-back-link");
+    const kicker = intro.querySelector(".event-detail-kicker");
+    const title = intro.querySelector("h1");
+    const lead = intro.querySelector(".event-detail-lead");
+    const media = page.querySelector(".event-detail-media");
+    const image = media.querySelector("img");
+    const sharePanel = page.querySelector(".event-share-panel");
+    const shareHeadingItems = sharePanel.querySelectorAll(".event-share-heading > *");
+    const shareButtons = sharePanel.querySelectorAll(".event-share-button");
+
+    window.gsap.timeline({ defaults: { ease: "power3.out" } })
+        .from(backLink, { autoAlpha: 0, x: -28, duration: 0.5 })
+        .from(kicker, { autoAlpha: 0, y: 18, duration: 0.45 }, "-=0.18")
+        .from(title, { autoAlpha: 0, y: 54, skewY: 2, duration: 0.9 }, "-=0.18")
+        .from(lead, { autoAlpha: 0, y: 26, duration: 0.65 }, "-=0.42");
+
+    window.gsap.set(media, { autoAlpha: 0, y: 64, clipPath: "inset(8% 6% 8% 6% round 32px)" });
+    window.gsap.set(shareHeadingItems, { autoAlpha: 0, y: 24 });
+    window.gsap.set(shareButtons, { autoAlpha: 0, y: 30, scale: 0.82, rotate: -2 });
+
+    const observeOnce = (element, reveal, threshold) => {
+        if (!("IntersectionObserver" in window)) {
+            reveal();
+            return;
+        }
+
+        const observer = new IntersectionObserver(entries => {
+            if (!entries[0].isIntersecting) return;
+            reveal();
+            observer.disconnect();
+        }, { threshold });
+
+        observer.observe(element);
+    };
+
+    observeOnce(media, () => {
+        window.gsap.timeline({ defaults: { ease: "power3.out" } })
+            .to(media, { autoAlpha: 1, y: 0, clipPath: "inset(0% 0% 0% 0% round 32px)", duration: 1 })
+            .from(image, { scale: 1.06, duration: 1.2 }, "-=0.8");
+    }, 0.12);
+
+    observeOnce(sharePanel, () => {
+        window.gsap.timeline({ defaults: { ease: "power3.out" } })
+            .to(shareHeadingItems, { autoAlpha: 1, y: 0, duration: 0.55, stagger: 0.1 })
+            .to(shareButtons, {
+                autoAlpha: 1,
+                y: 0,
+                scale: 1,
+                rotate: 0,
+                duration: 0.55,
+                stagger: 0.09,
+                ease: "back.out(1.7)"
+            }, "-=0.22");
+    }, 0.2);
+
+    if (window.matchMedia("(hover: hover)").matches) {
+        shareButtons.forEach(button => {
+            const icon = button.querySelector("i");
+
+            button.addEventListener("mouseenter", () => {
+                window.gsap.to(icon, { y: -2, scale: 1.18, rotate: 5, duration: 0.25 });
+            });
+
+            button.addEventListener("mouseleave", () => {
+                window.gsap.to(icon, { y: 0, scale: 1, rotate: 0, duration: 0.25 });
+            });
+        });
+    }
+}
+
+function setupEventImageLightbox() {
+    const trigger = document.getElementById("eventImageTrigger");
+    const lightbox = document.getElementById("eventImageLightbox");
+    const closeButton = document.getElementById("closeEventImageLightbox");
+    const lightboxImage = document.getElementById("eventImageLightboxImage");
+    const sourceImage = trigger?.querySelector("img");
+
+    if (!trigger || !lightbox || !closeButton || !lightboxImage || !sourceImage || typeof lightbox.showModal !== "function") {
+        return;
+    }
+
+    const shell = lightbox.querySelector(".event-image-lightbox-shell");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let isClosing = false;
+
+    const finishClose = () => {
+        lightbox.close();
+        document.body.classList.remove("lightbox-open");
+        isClosing = false;
+
+        if (window.gsap) {
+            window.gsap.set([lightbox, shell, closeButton], { clearProps: "all" });
+        }
+
+        trigger.focus();
+    };
+
+    const closeLightbox = () => {
+        if (!lightbox.open || isClosing) return;
+
+        if (!window.gsap || reduceMotion) {
+            finishClose();
+            return;
+        }
+
+        isClosing = true;
+        window.gsap.timeline({ onComplete: finishClose })
+            .to(closeButton, { autoAlpha: 0, scale: 0.7, duration: 0.16 })
+            .to(shell, { autoAlpha: 0, scale: 0.94, duration: 0.3, ease: "power2.in" }, "<")
+            .to(lightbox, { autoAlpha: 0, duration: 0.2 }, "-=0.12");
+    };
+
+    trigger.addEventListener("click", () => {
+        lightboxImage.src = sourceImage.currentSrc || sourceImage.src;
+        lightboxImage.alt = sourceImage.alt;
+        lightbox.showModal();
+        document.body.classList.add("lightbox-open");
+
+        if (!window.gsap || reduceMotion) return;
+
+        window.gsap.timeline({ defaults: { ease: "power3.out" } })
+            .fromTo(lightbox, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.22 })
+            .fromTo(shell, { autoAlpha: 0, scale: 0.86, y: 28 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.48 }, "-=0.08")
+            .fromTo(closeButton, { autoAlpha: 0, scale: 0.6, rotate: -45 }, { autoAlpha: 1, scale: 1, rotate: 0, duration: 0.38 }, "-=0.2");
+    });
+
+    closeButton.addEventListener("click", closeLightbox);
+
+    lightbox.addEventListener("click", event => {
+        if (event.target === lightbox || event.target === shell) {
+            closeLightbox();
+        }
+    });
+
+    lightbox.addEventListener("cancel", event => {
+        event.preventDefault();
+        closeLightbox();
+    });
+
+    lightbox.addEventListener("close", () => {
+        document.body.classList.remove("lightbox-open");
+    });
+}
+
 function setupEventCardsAnimations() {
     const sections = document.querySelectorAll(".latest-events-section, .events-section");
 
@@ -720,6 +874,8 @@ function init() {
     updateActiveNavLink();
     setupEventSharing();
     setupHeroAnimations();
+    setupEventDetailAnimations();
+    setupEventImageLightbox();
 
     if (displayWhatsapp) {
         displayWhatsapp.textContent = CONFIG.whatsappNumber;

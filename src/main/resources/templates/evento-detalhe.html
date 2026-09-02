@@ -4,50 +4,82 @@
     <title th:text="${event.title} + ' | Eventos | Giramundo'">Evento | Giramundo</title>
   </head>
   <div th:fragment="content">
-    <main>
-      <section class="hero event-detail-hero">
-        <div class="hero-content">
-          <p class="eyebrow">Evento</p>
-          <h1 th:text="${event.title}">Título do evento</h1>
-          <p class="hero-description" th:text="${event.description}">Texto do evento.</p>
-          <div class="hero-actions event-share-actions">
-            <button class="btn btn-primary" type="button" id="shareEventBtn">Compartilhar</button>
-            <a class="btn btn-secondary" th:href="@{/eventos}">Voltar aos eventos</a>
-          </div>
-        </div>
+    <main class="event-detail-page">
+      <section class="section event-detail-layout">
+        <header class="event-detail-intro">
+          <a class="event-back-link" th:href="@{/eventos}">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+            <span>Voltar aos eventos</span>
+          </a>
 
-        <div class="hero-card event-detail-card">
-          <img th:if="${event.image != null and !#strings.isEmpty(event.image)}" th:src="@{'/uploads/' + ${event.image}}" th:alt="|Flyer de ${event.title}|">
-          <img th:unless="${event.image != null and !#strings.isEmpty(event.image)}" th:src="@{/img/logo-giramundo.png}" th:alt="|Flyer de ${event.title}|">
-          <div>
-            <span th:text="${event.publishedAt != null ? #temporals.format(T(java.time.OffsetDateTime).parse(event.publishedAt), 'dd/MM/yyyy') : 'PUBLICADO'}">PUBLICADO</span>
-            <strong>Compartilhe esta publicação nas redes</strong>
-          </div>
-        </div>
-      </section>
-
-      <section class="section event-detail-section">
-        <div class="section-header split">
-          <div>
-            <p class="eyebrow">Detalhes</p>
-            <h2>Link único da publicação</h2>
-          </div>
-          <p class="section-note">Use a URL desta página para compartilhar nos stories, grupos ou mensagens.</p>
-        </div>
-
-        <article class="event-detail-content">
-          <div class="event-detail-meta">
-            <time th:if="${event.publishedAt != null}" th:datetime="${event.publishedAt}" th:text="|Publicado em ${#temporals.format(T(java.time.OffsetDateTime).parse(event.publishedAt), 'dd/MM/yyyy')}|">Publicado em</time>
+          <div class="event-detail-kicker">
+            <p class="eyebrow">Evento Giramundo</p>
+            <time th:if="${event.publishedAt != null}"
+                  th:datetime="${event.publishedAt}"
+                  th:text="|Publicado em ${#temporals.format(T(java.time.OffsetDateTime).parse(event.publishedAt), 'dd/MM/yyyy')}|">Publicado em</time>
             <time th:unless="${event.publishedAt != null}">Data indisponível</time>
-            <button class="btn btn-ghost btn-small" type="button" id="copyEventLinkBtn">Copiar link</button>
           </div>
 
-          <div class="event-detail-share-links">
-            <a class="btn btn-secondary btn-small" id="shareWhatsApp" target="_blank" rel="noopener">WhatsApp</a>
-            <a class="btn btn-secondary btn-small" id="shareFacebook" target="_blank" rel="noopener">Facebook</a>
-            <a class="btn btn-secondary btn-small" id="shareX" target="_blank" rel="noopener">X</a>
+          <h1 th:text="${event.title}">Título do evento</h1>
+          <p class="event-detail-lead" th:text="${event.description}">Texto do evento.</p>
+        </header>
+
+        <article class="event-publication">
+          <figure class="event-detail-media">
+            <button class="event-image-trigger" type="button" id="eventImageTrigger"
+                    aria-controls="eventImageLightbox" aria-haspopup="dialog">
+              <img th:if="${event.image != null and !#strings.isEmpty(event.image)}"
+                   th:src="@{'/uploads/' + ${event.image}}"
+                   th:alt="|Flyer de ${event.title}|">
+              <img th:unless="${event.image != null and !#strings.isEmpty(event.image)}"
+                   th:src="@{/img/logo-giramundo.png}"
+                   th:alt="|Evento ${event.title}|">
+              <span class="event-image-zoom-hint">
+                <i class="fa-solid fa-expand" aria-hidden="true"></i>
+                Ampliar imagem
+              </span>
+            </button>
+          </figure>
+
+          <div class="event-share-panel">
+            <div class="event-share-heading">
+              <p class="eyebrow">Compartilhe</p>
+              <h2>Convide quem vai curtir esse encontro com você.</h2>
+            </div>
+
+            <div class="event-detail-share-links" aria-label="Opções de compartilhamento">
+              <a class="btn event-share-button share-whatsapp" id="shareWhatsApp" target="_blank" rel="noopener" aria-label="Compartilhar no WhatsApp">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                <span>WhatsApp</span>
+              </a>
+              <a class="btn event-share-button share-facebook" id="shareFacebook" target="_blank" rel="noopener" aria-label="Compartilhar no Facebook">
+                <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+                <span>Facebook</span>
+              </a>
+              <a class="btn event-share-button share-x" id="shareX" target="_blank" rel="noopener" aria-label="Compartilhar no X">
+                <i class="fa-brands fa-x-twitter" aria-hidden="true"></i>
+                <span>X</span>
+              </a>
+              <button class="btn btn-primary event-share-button" type="button" id="shareEventBtn">
+                <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+                <span>Compartilhar</span>
+              </button>
+              <button class="btn btn-ghost event-share-button" type="button" id="copyEventLinkBtn">
+                <i class="fa-solid fa-link" aria-hidden="true"></i>
+                <span data-copy-label>Copiar link</span>
+              </button>
+            </div>
           </div>
         </article>
+
+        <dialog class="event-image-lightbox" id="eventImageLightbox" aria-label="Imagem ampliada do evento">
+          <div class="event-image-lightbox-shell">
+            <button class="event-image-lightbox-close" type="button" id="closeEventImageLightbox" aria-label="Fechar imagem ampliada">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+            <img id="eventImageLightboxImage" alt="">
+          </div>
+        </dialog>
       </section>
     </main>
 
